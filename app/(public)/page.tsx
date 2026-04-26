@@ -19,7 +19,7 @@ export const revalidate = 0;
 const PARTICIPANTES = [
   { num: '01', nome: 'André Adalba', papel: 'Convidado especial' },
   { num: '02', nome: 'Netão Santa Fé', papel: 'Anfitrião' },
-  { num: '03', nome: 'Junior Peto Burger', papel: 'Convidado especial' },
+  { num: '03', nome: 'Junior Peto\nJohns Burguer', papel: 'Convidado especial' },
   { num: '04', nome: 'Rafa Soares Santa Fé', papel: 'Convidado especial' },
   { num: '05', nome: 'Silvinho', papel: 'Convidado especial' },
   { num: '06', nome: 'Badaró', papel: 'Cozinheiro' },
@@ -374,7 +374,7 @@ export default async function HomePage() {
                 <span className="absolute -top-3 left-3 bg-santafe-orange px-2 py-0.5 font-slab text-xs text-santafe-navy">
                   #{p.num}
                 </span>
-                <p className="mt-2 font-display text-xl uppercase leading-tight">
+                <p className="mt-2 whitespace-pre-line font-display text-xl uppercase leading-tight">
                   {p.nome}
                 </p>
                 <p className="mt-2 font-serif text-xs italic text-santafe-cream/70">
