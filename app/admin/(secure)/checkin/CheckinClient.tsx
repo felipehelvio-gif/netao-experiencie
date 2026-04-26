@@ -170,7 +170,11 @@ function CheckinCard({
 
   const presente = !!item.checkedInAt;
   const horario = item.checkedInAt
-    ? new Date(item.checkedInAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    ? new Date(item.checkedInAt).toLocaleTimeString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     : null;
 
   return (

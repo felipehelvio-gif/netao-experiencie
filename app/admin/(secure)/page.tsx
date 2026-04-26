@@ -119,7 +119,11 @@ export default async function AdminDashboardPage() {
                 <div className="text-right">
                   <p className="font-bold text-emerald-700">{formatBRL(i.valorCentavos)}</p>
                   <p className="text-xs text-santafe-navy/60">
-                    {i.paidAt?.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) ?? ''}
+                    {i.paidAt?.toLocaleString('pt-BR', {
+                      timeZone: 'America/Sao_Paulo',
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    }) ?? ''}
                   </p>
                 </div>
               </div>

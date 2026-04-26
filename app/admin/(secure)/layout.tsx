@@ -34,6 +34,9 @@ export default async function AdminSecureLayout({ children }: { children: React.
                 >
                   Inscrições
                 </Link>
+                <Link href="/admin/vips" className="rounded px-3 py-1 hover:bg-santafe-navy-deep">
+                  VIPs
+                </Link>
               </>
             )}
             <Link href="/admin/checkin" className="rounded px-3 py-1 hover:bg-santafe-navy-deep">

@@ -187,10 +187,23 @@ export function InscricoesTable() {
                       )}
                     </td>
                     <td className="px-2 py-2 text-xs text-santafe-navy/70">
-                      {i.paidAt ? new Date(i.paidAt).toLocaleString('pt-BR') : '—'}
+                      {i.paidAt
+                        ? new Date(i.paidAt).toLocaleString('pt-BR', {
+                            timeZone: 'America/Sao_Paulo',
+                            dateStyle: 'short',
+                            timeStyle: 'short',
+                          })
+                        : '—'}
                     </td>
                     <td className="px-2 py-2 text-xs text-santafe-navy/70">
-                      {i.checkedInAt ? '✓ ' + new Date(i.checkedInAt).toLocaleTimeString('pt-BR') : '—'}
+                      {i.checkedInAt
+                        ? '✓ ' +
+                          new Date(i.checkedInAt).toLocaleTimeString('pt-BR', {
+                            timeZone: 'America/Sao_Paulo',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '—'}
                     </td>
                     <td className="px-2 py-2">
                       <div className="flex flex-wrap gap-1">
