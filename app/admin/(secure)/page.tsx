@@ -1,6 +1,8 @@
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { calcularLoteAtual } from '@/lib/lote';
 import { formatBRL, padComanda } from '@/lib/utils';
+import { getSessao } from '@/lib/auth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, Users, Ticket, TrendingUp, Hash } from 'lucide-react';
@@ -9,6 +11,9 @@ import { DashboardCharts } from './DashboardCharts';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  const sess = await getSessao();
+  if (sess.role !== 'ADMIN') redirect('/admin/checkin');
+
   const [pagas, faturamento, ultimas10, ultimaComanda, lote] = await Promise.all([
     prisma.inscricao.count({ where: { status: 'PAGA' } }),
     prisma.inscricao.aggregate({ where: { status: 'PAGA' }, _sum: { valorCentavos: true } }),

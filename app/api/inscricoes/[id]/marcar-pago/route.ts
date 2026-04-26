@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { isAdminAuth } from '@/lib/auth';
+import { requireRoleApi } from '@/lib/auth';
 import { enviarWhatsappTexto, montarMensagemConfirmacao } from '@/lib/evolution';
 
 export const runtime = 'nodejs';
 
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
-  if (!(await isAdminAuth())) {
-    return NextResponse.json({ erro: 'não autenticado' }, { status: 401 });
-  }
+  const role = await requireRoleApi(['ADMIN']);
+  if (!role) return NextResponse.json({ erro: 'não autorizado' }, { status: 403 });
 
   let comanda: number | null = null;
   let nome = '';

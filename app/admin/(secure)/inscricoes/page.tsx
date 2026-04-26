@@ -1,8 +1,13 @@
+import { redirect } from 'next/navigation';
+import { getSessao } from '@/lib/auth';
 import { InscricoesTable } from './InscricoesTable';
 
 export const dynamic = 'force-dynamic';
 
-export default function AdminInscricoesPage() {
+export default async function AdminInscricoesPage() {
+  const sess = await getSessao();
+  if (sess.role !== 'ADMIN') redirect('/admin/checkin');
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">

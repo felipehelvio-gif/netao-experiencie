@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { isAdminAuth } from '@/lib/auth';
+import { requireRoleApi } from '@/lib/auth';
 import { notasSchema } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!(await isAdminAuth())) {
-    return NextResponse.json({ erro: 'não autenticado' }, { status: 401 });
-  }
+  const role = await requireRoleApi(['ADMIN', 'PORTARIA']);
+  if (!role) return NextResponse.json({ erro: 'não autorizado' }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
   const parsed = notasSchema.safeParse(body);

@@ -15,6 +15,7 @@ const PARTICIPANTES = [
   { nome: 'Júnior Petiscos Burguer', papel: 'Convidado especial' },
   { nome: 'Rafa Soares Santa Fé', papel: 'Convidado especial' },
   { nome: 'Silvinho', papel: 'Convidado especial' },
+  { nome: 'Badaró', papel: 'Cozinheiro' },
 ];
 
 const CARDAPIO = [
@@ -24,7 +25,7 @@ const CARDAPIO = [
   'Milho Grelhado',
   'Arroz Caldoso',
   'Cupim Santa Fé',
-  'Língua ao Malbec',
+  'Língua no Vinho Malbec',
   '+ um prato secreto',
 ];
 

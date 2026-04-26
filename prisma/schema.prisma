@@ -73,6 +73,7 @@ model ListaEspera {
 model AdminSession {
   id        String   @id @default(cuid())
   token     String   @unique
+  role      String   @default("ADMIN")
   expiresAt DateTime
   createdAt DateTime @default(now())
 

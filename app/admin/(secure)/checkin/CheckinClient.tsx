@@ -33,20 +33,11 @@ export function CheckinClient({
   const [items, setItems] = React.useState<Inscricao[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [presentes, setPresentes] = React.useState(presentesInicial);
-  const [pagas, setPagas] = React.useState(pagasInicial);
+  const pagas = pagasInicial;
   const [actionId, setActionId] = React.useState<string | null>(null);
 
-  // Refresh contadores e busca
-  const refreshContadores = React.useCallback(async () => {
-    try {
-      const r = await fetch('/api/admin/metrics', { cache: 'no-store' });
-      if (!r.ok) return;
-      const j = await r.json();
-      setPagas(j.pagas);
-      // presentes nem está no metrics — vamos recontar via /api/admin/inscricoes?
-      // ou só contar localmente. Pra simplicidade, atualizamos quando user faz toggle.
-    } catch {}
-  }, []);
+  // Contadores são SSR-rendered no carregamento; presentes incrementa local no toggle.
+  // (Não chamamos /api/admin/metrics — restrito a ADMIN.)
 
   const buscar = React.useCallback(async (termo: string) => {
     setLoading(true);

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { isAdminAuth } from '@/lib/auth';
+import { requireRoleApi } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  if (!(await isAdminAuth())) {
-    return NextResponse.json({ erro: 'não autenticado' }, { status: 401 });
-  }
+  // Search permitido pra ADMIN e PORTARIA (portaria precisa pra buscar comandas)
+  const role = await requireRoleApi(['ADMIN', 'PORTARIA']);
+  if (!role) return NextResponse.json({ erro: 'não autorizado' }, { status: 403 });
 
   const url = new URL(req.url);
   const status = url.searchParams.get('status') as 'PENDENTE' | 'PAGA' | 'EXPIRADA' | 'CANCELADA' | null;

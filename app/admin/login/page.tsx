@@ -29,7 +29,10 @@ function LoginForm() {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        router.push(next);
+        const j = await res.json().catch(() => ({} as any));
+        // Server diz pra onde mandar (PORTARIA → /admin/checkin)
+        const dest = j?.redirect ?? next;
+        router.push(dest);
         router.refresh();
         return;
       }

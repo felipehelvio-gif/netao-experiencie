@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calcularLoteAtual } from '@/lib/lote';
-import { isAdminAuth } from '@/lib/auth';
+import { requireRoleApi } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  if (!(await isAdminAuth())) {
-    return NextResponse.json({ erro: 'não autenticado' }, { status: 401 });
+  const role = await requireRoleApi(['ADMIN']);
+  if (!role) {
+    return NextResponse.json({ erro: 'não autorizado' }, { status: 403 });
   }
 
   const [pagas, faturamento, ultimas10, ultimaComanda, lote] = await Promise.all([

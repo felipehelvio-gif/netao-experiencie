@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminLoginSchema } from '@/lib/schemas';
-import { ADMIN_COOKIE, comparaSenha, criarSessaoAdmin, logoutAdmin } from '@/lib/auth';
+import { ADMIN_COOKIE, comparaSenha, criarSessao, logoutAdmin, type Role } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
 import { cookies } from 'next/headers';
 
@@ -29,12 +29,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ erro: 'Dados inválidos' }, { status: 400 });
   }
 
-  if (!comparaSenha(parsed.data.password, process.env.ADMIN_PASSWORD)) {
+  let role: Role | null = null;
+  if (comparaSenha(parsed.data.password, process.env.ADMIN_PASSWORD)) {
+    role = 'ADMIN';
+  } else if (comparaSenha(parsed.data.password, process.env.PORTARIA_PASSWORD)) {
+    role = 'PORTARIA';
+  }
+
+  if (!role) {
     return NextResponse.json({ erro: 'Senha incorreta' }, { status: 401 });
   }
 
-  const { token, expiresAt } = await criarSessaoAdmin();
-  const res = NextResponse.json({ ok: true });
+  const { token, expiresAt } = await criarSessao(role);
+  const res = NextResponse.json({
+    ok: true,
+    role,
+    redirect: role === 'PORTARIA' ? '/admin/checkin' : '/admin',
+  });
   res.cookies.set({
     name: ADMIN_COOKIE,
     value: token,
