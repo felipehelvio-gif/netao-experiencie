@@ -24,6 +24,7 @@ const CARDAPIO = [
   'Milho Grelhado',
   'Arroz Caldoso',
   'Cupim Santa Fé',
+  'Língua ao Malbec',
   '+ um prato secreto',
 ];
 
