@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
 export const alt = 'Santa Fé Experience — Segunda Sem Folga · 27 de abril, 20h, Vila Leopoldina';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';

@@ -12,33 +12,43 @@ export async function GET() {
     return NextResponse.json({ erro: 'não autorizado' }, { status: 403 });
   }
 
-  const [pagas, faturamento, ultimas10, ultimaComanda, lote] = await Promise.all([
-    prisma.inscricao.count({ where: { status: 'PAGA' } }),
-    prisma.inscricao.aggregate({
-      where: { status: 'PAGA' },
-      _sum: { valorCentavos: true },
-    }),
-    prisma.inscricao.findMany({
-      where: { status: 'PAGA' },
-      orderBy: { paidAt: 'desc' },
-      take: 10,
-    }),
-    prisma.inscricao.aggregate({ _max: { numeroComanda: true } }),
-    calcularLoteAtual(),
-  ]);
+  const [pagantes, vips, faturamento, ultimas10, ultimaComandaPagante, lote] =
+    await Promise.all([
+      prisma.inscricao.count({
+        where: { status: 'PAGA', valorCentavos: { gt: 0 } },
+      }),
+      prisma.inscricao.count({
+        where: { status: 'PAGA', valorCentavos: 0, lote: 0 },
+      }),
+      prisma.inscricao.aggregate({
+        where: { status: 'PAGA' },
+        _sum: { valorCentavos: true },
+      }),
+      prisma.inscricao.findMany({
+        where: { status: 'PAGA', valorCentavos: { gt: 0 } },
+        orderBy: { paidAt: 'desc' },
+        take: 10,
+      }),
+      prisma.inscricao.aggregate({
+        where: { numeroComanda: { lt: 300 } },
+        _max: { numeroComanda: true },
+      }),
+      calcularLoteAtual(),
+    ]);
 
   // Gráficos: agregação por hora (últimas 24h) e por dia (últimos 7 dias)
+  // — só pagantes regulares pra mostrar atividade real de vendas
   const agora = new Date();
   const inicio24h = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
   const inicio7d = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const [pag24h, pag7d] = await Promise.all([
     prisma.inscricao.findMany({
-      where: { status: 'PAGA', paidAt: { gte: inicio24h } },
+      where: { status: 'PAGA', valorCentavos: { gt: 0 }, paidAt: { gte: inicio24h } },
       select: { paidAt: true },
     }),
     prisma.inscricao.findMany({
-      where: { status: 'PAGA', paidAt: { gte: inicio7d } },
+      where: { status: 'PAGA', valorCentavos: { gt: 0 }, paidAt: { gte: inicio7d } },
       select: { paidAt: true },
     }),
   ]);
@@ -63,9 +73,11 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    pagas,
+    pagas: pagantes,
+    pagantes,
+    vips,
     faturamentoCentavos: faturamento._sum.valorCentavos ?? 0,
-    ultimaComanda: ultimaComanda._max.numeroComanda ?? 0,
+    ultimaComanda: ultimaComandaPagante._max.numeroComanda ?? 0,
     lote,
     ultimas10,
     porHora: Array.from(porHora, ([k, v]) => ({ hora: k, qtd: v })).sort((a, b) =>

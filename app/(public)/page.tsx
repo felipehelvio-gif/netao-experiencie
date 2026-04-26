@@ -135,24 +135,74 @@ export default async function HomePage() {
                 </span>
               </div>
 
-              {/* Lote scoreboard ao vivo */}
+              {/* Lote scoreboard ao vivo — com barra de progresso e urgência */}
               <div className="mt-8 flex flex-wrap items-end gap-5">
                 {!lote.esgotado ? (
-                  <div className="relative w-fit rounded-lg border-4 border-santafe-orange bg-santafe-cream p-5 text-santafe-navy shadow-hard-orange">
-                    <span className="absolute -top-3 left-4 flex items-center gap-2 rounded-full bg-santafe-ember px-3 py-1 text-xs font-bold uppercase tracking-widest text-santafe-cream">
-                      <span className="live-dot" />
-                      Ao vivo
-                    </span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-santafe-navy/70">
-                      Lote {lote.lote} · agora
-                    </p>
-                    <p className="mt-1 font-slab text-5xl leading-none text-santafe-navy">
-                      {formatBRL(lote.valorCentavos)}
-                    </p>
-                    <p className="mt-2 text-xs font-bold uppercase tracking-wider text-santafe-orange-deep">
-                      Restam {lote.restantes} vagas neste valor
-                    </p>
-                  </div>
+                  (() => {
+                    const pct = Math.round(lote.progresso * 100);
+                    const proxValor = lote.proximoLote
+                      ? formatBRL(lote.proximoLote.valorCentavos)
+                      : null;
+                    const aumento = lote.proximoLote
+                      ? lote.proximoLote.valorCentavos - lote.valorCentavos
+                      : 0;
+                    const quaseLa = pct >= 70;
+                    return (
+                      <div className="relative w-full max-w-md rounded-lg border-4 border-santafe-orange bg-santafe-cream p-5 text-santafe-navy shadow-hard-orange md:w-[420px]">
+                        <span className="absolute -top-3 left-4 flex items-center gap-2 rounded-full bg-santafe-ember px-3 py-1 text-xs font-bold uppercase tracking-widest text-santafe-cream">
+                          <span className="live-dot" />
+                          Ao vivo
+                        </span>
+
+                        <div className="flex items-baseline justify-between gap-3">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-santafe-navy/70">
+                            Lote {lote.lote} · agora
+                          </p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-santafe-orange-deep">
+                            {pct}% vendido
+                          </p>
+                        </div>
+
+                        <p className="mt-1 font-slab text-5xl leading-none text-santafe-navy">
+                          {formatBRL(lote.valorCentavos)}
+                        </p>
+
+                        {/* Barra de progresso */}
+                        <div className="mt-3 h-3 w-full overflow-hidden rounded-full border-2 border-santafe-navy bg-santafe-cream-warm">
+                          <div
+                            className={`h-full transition-all duration-700 ${
+                              quaseLa ? 'bg-santafe-ember' : 'bg-santafe-orange'
+                            }`}
+                            style={{ width: `${Math.max(pct, 4)}%` }}
+                          />
+                        </div>
+
+                        {/* Texto enfático com urgência */}
+                        {lote.proximoLote ? (
+                          <p
+                            className={`mt-3 text-sm font-bold uppercase leading-tight tracking-wide ${
+                              quaseLa ? 'text-santafe-ember' : 'text-santafe-orange-deep'
+                            }`}
+                          >
+                            {quaseLa && '⚠ '}Faltam{' '}
+                            <span className="font-slab text-2xl">{lote.restantes}</span>{' '}
+                            vagas
+                            <br />
+                            <span className="text-santafe-navy">depois vira</span>{' '}
+                            <span className="text-santafe-ember">{proxValor}</span>
+                            <span className="text-santafe-navy/60">
+                              {' '}
+                              (+{formatBRL(aumento)})
+                            </span>
+                          </p>
+                        ) : (
+                          <p className="mt-3 text-sm font-bold uppercase leading-tight tracking-wide text-santafe-ember">
+                            Último lote · faltam {lote.restantes} vagas no total
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div className="rounded-lg border-4 border-santafe-ember bg-santafe-cream px-6 py-5 text-santafe-ember shadow-hard">
                     <p className="font-display text-4xl uppercase">Esgotado</p>
@@ -166,7 +216,7 @@ export default async function HomePage() {
                   href="#inscricao"
                   className="group relative inline-flex h-16 items-center justify-center gap-3 rounded-md bg-santafe-orange px-8 font-display text-2xl uppercase tracking-wide text-santafe-black shadow-[0_6px_0_0_#8C4D11] transition-all hover:translate-y-[3px] hover:bg-santafe-orange-bright hover:shadow-[0_3px_0_0_#8C4D11] active:translate-y-[6px] active:shadow-[0_0_0_0_#8C4D11]"
                 >
-                  Garantir ingresso
+                  Garantir agora
                   <ArrowDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
                 </a>
               </div>
@@ -638,14 +688,41 @@ export default async function HomePage() {
 
       {/* STICKY BOTTOM CTA — só mobile */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-santafe-navy bg-santafe-navy px-4 py-3 text-santafe-cream shadow-[0_-4px_20px_rgba(0,0,0,0.4)] md:hidden">
+        {!lote.esgotado &&
+          (() => {
+            const pct = Math.round(lote.progresso * 100);
+            const quaseLa = pct >= 70;
+            return (
+              <div className="mb-2">
+                <div className="flex items-baseline justify-between text-[9px] font-bold uppercase tracking-widest">
+                  <span className="text-santafe-orange">
+                    Lote {lote.lote} · {lote.restantes} vaga{lote.restantes === 1 ? '' : 's'}
+                  </span>
+                  <span className={quaseLa ? 'text-santafe-ember' : 'text-santafe-cream/70'}>
+                    {pct}% vendido
+                  </span>
+                </div>
+                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-santafe-cream/15">
+                  <div
+                    className={`h-full transition-all duration-700 ${
+                      quaseLa ? 'bg-santafe-ember' : 'bg-santafe-orange'
+                    }`}
+                    style={{ width: `${Math.max(pct, 4)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })()}
         <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-santafe-orange">
-              {!lote.esgotado ? `Lote ${lote.lote} · ${lote.restantes} vagas` : 'Esgotado'}
-            </p>
+          <div className="flex-1 leading-tight">
             <p className="font-slab text-2xl leading-none text-santafe-cream">
               {!lote.esgotado ? formatBRL(lote.valorCentavos) : '—'}
             </p>
+            {!lote.esgotado && lote.proximoLote && (
+              <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-santafe-cream/60">
+                depois vira {formatBRL(lote.proximoLote.valorCentavos)}
+              </p>
+            )}
           </div>
           <a
             href="#inscricao"
@@ -656,8 +733,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Spacer pra sticky bar não cobrir conteúdo */}
-      <div className="h-20 md:hidden" />
+      {/* Spacer pra sticky bar não cobrir conteúdo (incluindo a barra de progresso) */}
+      <div className="h-28 md:hidden" />
     </main>
   );
 }

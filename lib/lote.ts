@@ -8,6 +8,14 @@ export type LoteAtual =
       restantes: number;
       totalPagos: number;
       capacidade: number;
+      // Quanto do lote atual já foi vendido (0..1) — útil pra barra de progresso na landing
+      progresso: number;
+      // Próximo lote (se existir)
+      proximoLote: { lote: number; valorCentavos: number } | null;
+      // Onde começou esse lote (vendido até essa marca = 0% do lote)
+      inicioLote: number;
+      // Onde termina (vira o próximo)
+      fimLote: number;
     }
   | {
       esgotado: true;
@@ -26,8 +34,15 @@ export const TABELA_LOTES = [
 ] as const;
 
 export function calcularLoteSync(totalPagos: number): LoteAtual {
-  for (const t of TABELA_LOTES) {
+  for (let i = 0; i < TABELA_LOTES.length; i++) {
+    const t = TABELA_LOTES[i];
     if (totalPagos < t.ate) {
+      const inicioLote = i === 0 ? 0 : TABELA_LOTES[i - 1].ate;
+      const fimLote = t.ate;
+      const tamanhoLote = fimLote - inicioLote;
+      const vendidosNoLote = totalPagos - inicioLote;
+      const progresso = Math.max(0, Math.min(1, vendidosNoLote / tamanhoLote));
+      const prox = TABELA_LOTES[i + 1];
       return {
         esgotado: false,
         lote: t.lote,
@@ -35,6 +50,12 @@ export function calcularLoteSync(totalPagos: number): LoteAtual {
         restantes: t.ate - totalPagos,
         totalPagos,
         capacidade: CAPACIDADE_TOTAL,
+        progresso,
+        inicioLote,
+        fimLote,
+        proximoLote: prox
+          ? { lote: prox.lote, valorCentavos: prox.valorCentavos }
+          : null,
       };
     }
   }
@@ -42,8 +63,10 @@ export function calcularLoteSync(totalPagos: number): LoteAtual {
 }
 
 export async function calcularLoteAtual(): Promise<LoteAtual> {
+  // Conta APENAS pagantes regulares (valorCentavos > 0). VIPs (valorCentavos = 0) não
+  // entram no controle de capacidade do evento — eles têm range próprio (#500..#301).
   const totalPagos = await prisma.inscricao.count({
-    where: { status: 'PAGA' },
+    where: { status: 'PAGA', valorCentavos: { gt: 0 } },
   });
   return calcularLoteSync(totalPagos);
 }
