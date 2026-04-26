@@ -117,9 +117,8 @@ export default async function HomePage() {
                 </span>
               </h1>
 
-              {/* Faixa info: data + local com tape effects */}
+              {/* Faixa info: data + local */}
               <div className="relative mt-10 inline-flex flex-wrap items-center gap-4 rounded-md border-2 border-santafe-orange bg-santafe-navy-deep/70 px-5 py-3 backdrop-blur-sm">
-                <span className="tape -top-3 left-3 -rotate-6" />
                 <span className="flex items-center gap-2 font-bold uppercase tracking-wide">
                   <Calendar className="h-5 w-5 text-santafe-orange" />
                   27 · 04 · 26
