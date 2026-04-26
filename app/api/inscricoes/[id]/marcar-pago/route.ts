@@ -20,7 +20,11 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       if (insc.status === 'PAGA') {
         return { comanda: insc.numeroComanda, nome: insc.nome, whatsapp: insc.whatsapp, idempotente: true };
       }
-      const ultima = await tx.inscricao.aggregate({ _max: { numeroComanda: true } });
+      // Pagantes regulares: comanda no range 1..299. (VIPs ocupam 301..500.)
+      const ultima = await tx.inscricao.aggregate({
+        where: { numeroComanda: { lt: 300 } },
+        _max: { numeroComanda: true },
+      });
       const proximo = (ultima._max.numeroComanda ?? 0) + 1;
       const upd = await tx.inscricao.update({
         where: { id: insc.id },

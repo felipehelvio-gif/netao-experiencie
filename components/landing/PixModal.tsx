@@ -85,15 +85,60 @@ export function PixModal({
   const min = String(Math.floor(restantes / 60)).padStart(2, '0');
   const sec = String(restantes % 60).padStart(2, '0');
 
-  const copiar = async () => {
+  const copiar = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (!data) return;
-    try {
-      await navigator.clipboard.writeText(data.pix.copyPaste);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2000);
-    } catch {
-      push({ title: 'Não consegui copiar', description: 'Seleciona o texto manualmente.', variant: 'destructive' });
+    const texto = data.pix.copyPaste;
+
+    // 1) API moderna (HTTPS + secure context)
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(texto);
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2000);
+        return;
+      } catch {
+        // segue pro fallback
+      }
     }
+
+    // 2) Fallback legado: textarea + execCommand (funciona em Safari mobile e contexts inseguros)
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.opacity = '0';
+      ta.style.pointerEvents = 'none';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, texto.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok) {
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2000);
+        return;
+      }
+    } catch {
+      // último fallback abaixo
+    }
+
+    // 3) Último recurso: seleciona o input visível pra copiar manualmente
+    const input = document.querySelector<HTMLInputElement>('input[data-pix-copypaste]');
+    if (input) {
+      input.focus();
+      input.select();
+    }
+    push({
+      title: 'Selecionei o código',
+      description: 'Toca em "Copiar" do teclado ou faz Ctrl+C',
+      variant: 'destructive',
+    });
   };
 
   if (!data) return null;
@@ -130,11 +175,13 @@ export function PixModal({
             <div className="mt-1 flex gap-2">
               <input
                 readOnly
+                data-pix-copypaste
                 value={data.pix.copyPaste}
                 onFocus={(e) => e.currentTarget.select()}
+                onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
                 className="flex-1 rounded-md border-2 border-border bg-white px-3 py-2 text-xs font-mono"
               />
-              <Button onClick={copiar} size="sm" type="button">
+              <Button onClick={(e) => copiar(e)} size="sm" type="button">
                 {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copiado ? 'Copiado' : 'Copiar'}
               </Button>

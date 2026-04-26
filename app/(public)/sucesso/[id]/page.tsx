@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { padComanda } from '@/lib/utils';
 import { Calendar, Clock, MapPin, CheckCircle2, MessageCircle } from 'lucide-react';
 
+const ROCK_HAND = String.fromCodePoint(0x1f918); // 🤘 — runtime pra evitar double-escape do SWC
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -44,10 +46,10 @@ export default async function SucessoPage({ params }: { params: { id: string } }
   const primeiroNome = insc.nome.trim().split(/\s+/)[0];
 
   return (
-    <main className="min-h-screen overflow-hidden bg-santafe-navy text-santafe-cream">
-      <div className="absolute inset-x-0 top-0 h-3 stripes-orange" />
+    <main className="flex min-h-screen flex-col bg-santafe-navy text-santafe-cream">
+      <div className="h-3 flex-shrink-0 stripes-orange" />
 
-      <div className="container px-4 py-12 md:py-16">
+      <div className="container flex-1 px-4 py-12 md:py-16">
         <div className="mx-auto max-w-xl">
           {/* Confirmação */}
           <div className="text-center">
@@ -56,7 +58,7 @@ export default async function SucessoPage({ params }: { params: { id: string } }
               Pagamento confirmado
             </p>
             <h1 className="mt-2 font-display text-3xl uppercase md:text-4xl">
-              Bora, {primeiroNome}! 🤘
+              Bora, {primeiroNome}! {ROCK_HAND}
             </h1>
           </div>
 
@@ -118,7 +120,7 @@ export default async function SucessoPage({ params }: { params: { id: string } }
         </div>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 h-3 stripes-orange" />
+      <div className="h-3 flex-shrink-0 stripes-orange" />
     </main>
   );
 }

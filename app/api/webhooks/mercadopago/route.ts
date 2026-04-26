@@ -89,7 +89,11 @@ export async function POST(req: NextRequest) {
           return { idempotente: true, comanda: ja.numeroComanda, nome: ja.nome, whatsapp: ja.whatsapp };
         }
 
-        const ultima = await tx.inscricao.aggregate({ _max: { numeroComanda: true } });
+        // Pagantes regulares: comanda no range 1..299. (VIPs ocupam 301..500.)
+        const ultima = await tx.inscricao.aggregate({
+          where: { numeroComanda: { lt: 300 } },
+          _max: { numeroComanda: true },
+        });
         const proximo = (ultima._max.numeroComanda ?? 0) + 1;
 
         const atualizada = await tx.inscricao.update({
