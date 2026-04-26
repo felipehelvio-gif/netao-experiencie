@@ -1,9 +1,10 @@
+import Image from 'next/image';
 import { calcularLoteAtual, TABELA_LOTES } from '@/lib/lote';
 import { formatBRL } from '@/lib/utils';
 import { InscricaoForm } from '@/components/landing/InscricaoForm';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Music, UtensilsCrossed, Beer, Clock, Users } from 'lucide-react';
+import { MapPin, Music, UtensilsCrossed, Beer, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -31,64 +32,81 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden">
-      {/* HERO */}
+      {/* HERO — flyer oficial */}
       <section className="relative bg-santafe-navy text-santafe-cream">
-        <div className="absolute inset-0 grain opacity-50" />
-        <div className="absolute inset-x-0 top-0 h-3 stripes-orange" />
+        <div className="absolute inset-x-0 top-0 z-10 h-3 stripes-orange" />
 
-        <div className="container relative px-4 py-16 md:py-24">
-          <div className="mx-auto max-w-4xl text-center">
-            <Badge variant="default" className="mb-6 px-4 py-2 text-sm">
-              · Encontro Nacional de Donos de Restaurantes ·
-            </Badge>
+        <div className="container relative px-4 py-10 md:py-14">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
+            {/* Lado esquerdo: texto + CTA + lote */}
+            <div className="order-2 text-center lg:order-1 lg:text-left">
+              <Badge variant="default" className="mb-5 px-4 py-2 text-sm">
+                · Encontro Nacional de Donos de Restaurantes ·
+              </Badge>
 
-            <h1 className="font-display text-5xl uppercase leading-[0.9] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
-              Segunda <br />
-              <span className="text-santafe-orange">Sem Folga</span>
-              <br />
-              <span className="text-stroke text-santafe-cream">Santa Fé</span>{' '}
-              <span className="text-santafe-orange">Experience</span>
-            </h1>
+              <h1 className="font-display text-5xl uppercase leading-[0.9] tracking-tight sm:text-6xl lg:text-7xl">
+                Segunda <span className="text-santafe-orange">Sem Folga</span>
+                <br />
+                <span className="text-santafe-orange">Santa Fé</span>{' '}
+                <span className="text-stroke text-santafe-cream">Experience</span>
+              </h1>
 
-            <div className="mt-8 flex flex-col items-center gap-2 text-lg font-bold uppercase tracking-wide sm:flex-row sm:justify-center sm:gap-6">
-              <span className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-santafe-orange" />
-                27 de abril · 20h às 23h59
-              </span>
-              <span className="hidden text-santafe-orange sm:inline">·</span>
-              <span className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-santafe-orange" />
-                Vila Leopoldina, SP
-              </span>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-base font-bold uppercase tracking-wide lg:justify-start">
+                <span className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-santafe-orange" />
+                  27 de abril · 20h
+                </span>
+                <span className="text-santafe-orange/60">·</span>
+                <span className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-santafe-orange" />
+                  Vila Leopoldina, SP
+                </span>
+              </div>
+
+              <div className="mt-8 inline-block">
+                {!lote.esgotado ? (
+                  <div className="rounded-md border-2 border-santafe-orange bg-santafe-orange/10 px-6 py-3 backdrop-blur">
+                    <p className="text-sm uppercase tracking-wider text-santafe-orange">
+                      Lote {lote.lote} · agora
+                    </p>
+                    <p className="mt-1 font-display text-4xl text-santafe-cream">
+                      {formatBRL(lote.valorCentavos)}
+                    </p>
+                    <p className="mt-1 text-xs text-santafe-cream/80">
+                      Restam{' '}
+                      <span className="font-bold text-santafe-orange">{lote.restantes}</span>{' '}
+                      vagas neste valor
+                    </p>
+                  </div>
+                ) : (
+                  <Badge variant="destructive" className="px-6 py-3 text-base">
+                    ESGOTADO
+                  </Badge>
+                )}
+              </div>
+
+              <div className="mt-8">
+                <a
+                  href="#inscricao"
+                  className="inline-flex h-14 items-center justify-center rounded-md bg-santafe-orange px-10 text-lg font-bold uppercase tracking-wide text-santafe-black shadow-[0_4px_0_0_#C76F1A] transition-all hover:translate-y-[2px] hover:bg-santafe-orange-bright hover:shadow-[0_2px_0_0_#C76F1A] active:scale-[0.98]"
+                >
+                  Garantir meu ingresso
+                </a>
+              </div>
             </div>
 
-            <div className="mt-10 inline-block">
-              {!lote.esgotado ? (
-                <div className="rounded-md border-2 border-santafe-orange bg-santafe-orange/10 px-6 py-3 backdrop-blur">
-                  <p className="text-sm uppercase tracking-wider text-santafe-orange">
-                    Lote {lote.lote} · agora
-                  </p>
-                  <p className="mt-1 font-display text-4xl text-santafe-cream">
-                    {formatBRL(lote.valorCentavos)}
-                  </p>
-                  <p className="mt-1 text-xs text-santafe-cream/80">
-                    Restam <span className="font-bold text-santafe-orange">{lote.restantes}</span> vagas neste valor
-                  </p>
-                </div>
-              ) : (
-                <Badge variant="destructive" className="px-6 py-3 text-base">
-                  ESGOTADO
-                </Badge>
-              )}
-            </div>
-
-            <div className="mt-8">
-              <a
-                href="#inscricao"
-                className="inline-flex h-14 items-center justify-center rounded-md bg-santafe-orange px-10 text-lg font-bold uppercase tracking-wide text-santafe-black shadow-[0_4px_0_0_#C76F1A] transition-all hover:translate-y-[2px] hover:bg-santafe-orange-bright hover:shadow-[0_2px_0_0_#C76F1A] active:scale-[0.98]"
-              >
-                Garantir meu ingresso
-              </a>
+            {/* Lado direito: flyer oficial */}
+            <div className="order-1 lg:order-2">
+              <div className="relative mx-auto aspect-[675/1200] w-full max-w-md overflow-hidden rounded-lg border-4 border-santafe-orange shadow-[8px_8px_0_0_#F39C3C]">
+                <Image
+                  src="/flyer-evento.jpg"
+                  alt="Flyer oficial · Segunda Sem Folga · Santa Fé Experience"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 90vw, 45vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -126,16 +144,30 @@ export default async function HomePage() {
           </Card>
         </div>
 
-        <div className="mx-auto mt-10 max-w-2xl rounded-md border-2 border-santafe-navy bg-santafe-cream p-6 shadow-[6px_6px_0_0_#1B2B3F]">
-          <h3 className="font-display text-2xl uppercase text-santafe-navy">Cardápio</h3>
-          <ul className="mt-3 grid gap-2 text-santafe-navy md:grid-cols-2">
-            {CARDAPIO.map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span className="mt-1.5 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-santafe-orange" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
+        {/* Cardápio: imagem oficial + lista */}
+        <div className="mx-auto mt-10 grid max-w-5xl gap-6 md:grid-cols-[1fr_1fr] md:items-center">
+          <div className="relative mx-auto aspect-[675/1200] w-full max-w-xs overflow-hidden rounded-lg border-2 border-santafe-navy shadow-[6px_6px_0_0_#1B2B3F]">
+            <Image
+              src="/cardapio.jpg"
+              alt="Cardápio Santa Fé Experience"
+              fill
+              sizes="(max-width: 768px) 80vw, 33vw"
+              className="object-cover"
+            />
+          </div>
+
+          <div className="rounded-md border-2 border-santafe-navy bg-santafe-cream p-6 shadow-[6px_6px_0_0_#1B2B3F]">
+            <h3 className="font-display text-3xl uppercase text-santafe-navy">Cardápio</h3>
+            <p className="mt-1 text-sm text-santafe-navy/70">Open food a noite toda</p>
+            <ul className="mt-4 grid gap-2 text-santafe-navy">
+              {CARDAPIO.map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <span className="mt-1.5 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-santafe-orange" />
+                  <span className="font-medium">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -147,15 +179,16 @@ export default async function HomePage() {
           </h2>
           <div className="mx-auto mt-2 h-1 w-24 bg-santafe-orange" />
 
-          <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          <div className="mx-auto mt-10 grid max-w-5xl gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             {PARTICIPANTES.map((p) => (
               <div
                 key={p.nome}
                 className="rounded-md border-2 border-santafe-orange bg-santafe-navy-deep p-5 text-center transition-transform hover:-translate-y-1"
               >
-                <Users className="mx-auto h-10 w-10 text-santafe-orange" />
-                <p className="mt-3 font-display text-lg uppercase leading-tight">{p.nome}</p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-santafe-cream/70">{p.papel}</p>
+                <p className="font-display text-lg uppercase leading-tight">{p.nome}</p>
+                <p className="mt-1 text-xs uppercase tracking-wider text-santafe-cream/70">
+                  {p.papel}
+                </p>
               </div>
             ))}
           </div>
@@ -184,7 +217,11 @@ export default async function HomePage() {
               >
                 <div>
                   <p className="font-display text-xl uppercase">Lote {t.lote}</p>
-                  <p className={`text-xs ${isAtual ? 'text-santafe-black/80' : 'text-santafe-navy/70'}`}>
+                  <p
+                    className={`text-xs ${
+                      isAtual ? 'text-santafe-black/80' : 'text-santafe-navy/70'
+                    }`}
+                  >
                     Do {inicio}º ao {fim}º pagante
                   </p>
                 </div>
@@ -245,11 +282,17 @@ export default async function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-santafe-navy-deep py-10 text-santafe-cream">
+      <footer className="bg-santafe-cream py-10 text-santafe-navy">
         <div className="container px-4 text-center">
-          <p className="font-display text-2xl uppercase tracking-wider text-santafe-orange">
-            Santa Fé Experience
-          </p>
+          <div className="relative mx-auto h-32 w-64">
+            <Image
+              src="/logo-santafe.jpg"
+              alt="Santa Fé · A Costela"
+              fill
+              sizes="256px"
+              className="object-contain mix-blend-multiply"
+            />
+          </div>
           <p className="mt-2 text-sm">Rua Carlos Weber, 64 · Vila Leopoldina · São Paulo</p>
           <p className="mt-4 text-sm">
             Dúvidas:{' '}
@@ -257,12 +300,12 @@ export default async function HomePage() {
               href="https://wa.me/5521983706066"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold text-santafe-orange hover:underline"
+              className="font-bold text-santafe-orange-dark hover:underline"
             >
               WhatsApp 21 98370-6066
             </a>
           </p>
-          <p className="mt-6 text-xs text-santafe-cream/50">
+          <p className="mt-6 text-xs text-santafe-navy/50">
             © {new Date().getFullYear()} Santa Fé · Segunda Sem Folga
           </p>
         </div>
