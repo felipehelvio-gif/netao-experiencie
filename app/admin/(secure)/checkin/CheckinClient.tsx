@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { Search, CheckCircle2, Loader2, Save } from 'lucide-react';
+import { Search, CheckCircle2, Loader2, Save, Camera, Image as ImageIcon } from 'lucide-react';
 import { Input, Textarea } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { formatBRL, padComanda, formatarWhatsappBR } from '@/lib/utils';
+import { CameraCapture } from '@/components/admin/CameraCapture';
 
 type Inscricao = {
   id: string;
@@ -18,6 +19,7 @@ type Inscricao = {
   valorCentavos: number;
   status: 'PENDENTE' | 'PAGA' | 'EXPIRADA' | 'CANCELADA';
   checkedInAt: string | null;
+  checkinFotoPath: string | null;
   notasOperacao: string | null;
 };
 
@@ -36,8 +38,9 @@ export function CheckinClient({
   const pagas = pagasInicial;
   const [actionId, setActionId] = React.useState<string | null>(null);
 
-  // Contadores são SSR-rendered no carregamento; presentes incrementa local no toggle.
-  // (Não chamamos /api/admin/metrics — restrito a ADMIN.)
+  // Modal de câmera (controlado aqui, único modal compartilhado)
+  const [cameraOpen, setCameraOpen] = React.useState(false);
+  const [cameraTarget, setCameraTarget] = React.useState<Inscricao | null>(null);
 
   const buscar = React.useCallback(async (termo: string) => {
     setLoading(true);
@@ -62,31 +65,71 @@ export function CheckinClient({
     return () => clearTimeout(id);
   }, [q, buscar]);
 
-  const togglePresenca = async (i: Inscricao) => {
-    const novo = !i.checkedInAt;
+  const removerPresenca = async (i: Inscricao) => {
     setActionId(i.id);
     try {
       const res = await fetch(`/api/inscricoes/${i.id}/check-in`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ presente: novo }),
+        body: JSON.stringify({ presente: false }),
       });
       if (res.ok) {
-        const j = await res.json();
         setItems((prev) =>
-          prev.map((x) => (x.id === i.id ? { ...x, checkedInAt: j.checkedInAt ?? null } : x)),
+          prev.map((x) => (x.id === i.id ? { ...x, checkedInAt: null } : x)),
         );
-        setPresentes((p) => p + (novo ? 1 : -1));
-        push({
-          title: novo ? '✓ Presente' : 'Presença removida',
-          description: i.nome,
-          variant: novo ? 'success' : 'default',
-        });
+        setPresentes((p) => Math.max(0, p - 1));
+        push({ title: 'Presença removida', description: i.nome });
       } else {
         push({ title: 'Erro', variant: 'destructive' });
       }
     } finally {
       setActionId(null);
+    }
+  };
+
+  const abrirCamera = (i: Inscricao) => {
+    setCameraTarget(i);
+    setCameraOpen(true);
+  };
+
+  const onCaptureFoto = async (blob: Blob) => {
+    const target = cameraTarget;
+    if (!target) return;
+    const fd = new FormData();
+    fd.append('foto', blob, `${target.id}.jpg`);
+    try {
+      const res = await fetch(`/api/inscricoes/${target.id}/check-in-foto`, {
+        method: 'POST',
+        body: fd,
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        push({
+          title: 'Falha ao subir foto',
+          description: j?.erro ?? `HTTP ${res.status}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      const j = await res.json();
+      setItems((prev) =>
+        prev.map((x) =>
+          x.id === target.id
+            ? { ...x, checkedInAt: j.checkedInAt ?? new Date().toISOString(), checkinFotoPath: j.fotoPath }
+            : x,
+        ),
+      );
+      // Se ainda não tava marcado presente, agora tá
+      if (!target.checkedInAt) setPresentes((p) => p + 1);
+      push({
+        title: '✓ Entrada confirmada',
+        description: `${target.nome} · foto salva`,
+        variant: 'success',
+      });
+      setCameraOpen(false);
+      setCameraTarget(null);
+    } catch {
+      push({ title: 'Erro de rede', variant: 'destructive' });
     }
   };
 
@@ -135,7 +178,8 @@ export function CheckinClient({
             key={i.id}
             item={i}
             disabled={actionId === i.id}
-            onToggle={() => togglePresenca(i)}
+            onAbrirCamera={() => abrirCamera(i)}
+            onRemoverPresenca={() => removerPresenca(i)}
             onSaveNotas={(notas) => salvarNotas(i.id, notas)}
           />
         ))}
@@ -150,6 +194,20 @@ export function CheckinClient({
           </p>
         )}
       </div>
+
+      <CameraCapture
+        open={cameraOpen}
+        onOpenChange={(v) => {
+          setCameraOpen(v);
+          if (!v) setCameraTarget(null);
+        }}
+        onCapture={onCaptureFoto}
+        headline={
+          cameraTarget
+            ? `${cameraTarget.nome} · #${padComanda(cameraTarget.numeroComanda ?? 0)}`
+            : undefined
+        }
+      />
     </div>
   );
 }
@@ -157,16 +215,19 @@ export function CheckinClient({
 function CheckinCard({
   item,
   disabled,
-  onToggle,
+  onAbrirCamera,
+  onRemoverPresenca,
   onSaveNotas,
 }: {
   item: Inscricao;
   disabled: boolean;
-  onToggle: () => void;
+  onAbrirCamera: () => void;
+  onRemoverPresenca: () => void;
   onSaveNotas: (notas: string) => void;
 }) {
   const [notas, setNotas] = React.useState(item.notasOperacao ?? '');
   const [salvouNotas, setSalvouNotas] = React.useState(false);
+  const [verFoto, setVerFoto] = React.useState(false);
 
   const presente = !!item.checkedInAt;
   const horario = item.checkedInAt
@@ -175,6 +236,10 @@ function CheckinCard({
         hour: '2-digit',
         minute: '2-digit',
       })
+    : null;
+
+  const fotoUrl = item.checkinFotoPath
+    ? `/api/uploads/${item.checkinFotoPath}`
     : null;
 
   return (
@@ -208,31 +273,67 @@ function CheckinCard({
               {formatarWhatsappBR(item.whatsapp)} · {formatBRL(item.valorCentavos)}
             </p>
           </div>
-          <div>
+          <div className="flex flex-col items-end gap-2">
             {item.status !== 'PAGA' && <Badge variant="warning">Não pagou</Badge>}
+            {fotoUrl && (
+              <button
+                type="button"
+                onClick={() => setVerFoto(true)}
+                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded border-2 border-emerald-600 bg-white transition-transform hover:scale-105"
+                title="Ver foto da entrada"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={fotoUrl} alt="Foto da entrada" className="h-full w-full object-cover" />
+              </button>
+            )}
           </div>
         </div>
 
-        <button
-          onClick={onToggle}
-          disabled={disabled || item.status !== 'PAGA'}
-          className={`mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-md text-xl font-bold uppercase transition-all active:scale-[0.98] disabled:opacity-50 ${
-            presente
-              ? 'bg-santafe-navy text-santafe-cream hover:bg-santafe-navy-deep'
-              : 'bg-emerald-600 text-white hover:bg-emerald-700'
-          }`}
-        >
-          {disabled ? (
-            <Loader2 className="h-6 w-6 animate-spin" />
-          ) : presente ? (
-            <>
+        {/* Botão principal — exige foto */}
+        {!presente ? (
+          <button
+            onClick={onAbrirCamera}
+            disabled={disabled || item.status !== 'PAGA'}
+            className="mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-md bg-emerald-600 text-xl font-bold uppercase text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+            type="button"
+          >
+            {disabled ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <>
+                <Camera className="h-6 w-6" />
+                Tirar foto e confirmar
+              </>
+            )}
+          </button>
+        ) : (
+          <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+            <div className="flex h-16 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-base font-bold uppercase text-white">
               <CheckCircle2 className="h-6 w-6" />
-              Presente às {horario} · tocar pra desfazer
-            </>
-          ) : (
-            <>Confirmar presença</>
-          )}
-        </button>
+              Presente às {horario}
+            </div>
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={onAbrirCamera}
+                disabled={disabled}
+                className="flex h-7 items-center justify-center gap-1 rounded border-2 border-santafe-navy px-3 text-[10px] font-bold uppercase tracking-wider hover:bg-santafe-navy hover:text-santafe-cream disabled:opacity-50"
+                title="Refazer foto"
+                type="button"
+              >
+                <Camera className="h-3 w-3" />
+                {item.checkinFotoPath ? 'Refazer foto' : 'Tirar foto'}
+              </button>
+              <button
+                onClick={onRemoverPresenca}
+                disabled={disabled}
+                className="flex h-7 items-center justify-center gap-1 rounded border-2 border-destructive px-3 text-[10px] font-bold uppercase tracking-wider text-destructive hover:bg-destructive hover:text-destructive-foreground disabled:opacity-50"
+                type="button"
+              >
+                Desfazer
+              </button>
+            </div>
+          </div>
+        )}
 
         <details className="mt-3">
           <summary className="cursor-pointer text-xs font-bold uppercase text-santafe-navy/70">
@@ -262,6 +363,26 @@ function CheckinCard({
           </div>
         </details>
       </div>
+
+      {/* Lightbox foto */}
+      {verFoto && fotoUrl && (
+        <button
+          onClick={() => setVerFoto(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          type="button"
+          aria-label="Fechar foto"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={fotoUrl}
+            alt="Foto da entrada (cheia)"
+            className="max-h-full max-w-full rounded-lg border-4 border-santafe-orange object-contain"
+          />
+          <span className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-santafe-cream px-4 py-2 text-xs font-bold uppercase tracking-widest text-santafe-navy">
+            <ImageIcon className="mr-1 inline h-3 w-3" /> Toca pra fechar
+          </span>
+        </button>
+      )}
     </div>
   );
 }

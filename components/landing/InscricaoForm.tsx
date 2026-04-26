@@ -66,15 +66,33 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
     setErros({});
     const novosErros: Record<string, string> = {};
 
-    if (nome.trim().length < 3) novosErros.nome = 'Nome muito curto';
-    if (!isWhatsappValido(whatsapp)) novosErros.whatsapp = 'WhatsApp inválido';
+    if (nome.trim().length < 3) novosErros.nome = 'Falta seu nome completo';
+    if (!isWhatsappValido(whatsapp)) novosErros.whatsapp = 'WhatsApp incompleto ou inválido';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) novosErros.email = 'E-mail inválido';
-    if (tipo === 'DONO' && restauranteNome.trim().length < 2) novosErros.restauranteNome = 'Informe o nome do restaurante';
+    if (tipo === 'DONO' && restauranteNome.trim().length < 2)
+      novosErros.restauranteNome = 'Falta o nome do restaurante';
     if ((tipo === 'FORNECEDOR' || tipo === 'PRESTADOR') && empresaNome.trim().length < 2)
-      novosErros.empresaNome = 'Informe o nome da empresa';
+      novosErros.empresaNome = 'Falta o nome da empresa';
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros);
+      // Scroll + foco no primeiro erro
+      const ordem = ['nome', 'whatsapp', 'email', 'restauranteNome', 'empresaNome'];
+      const primeiro = ordem.find((k) => novosErros[k]);
+      if (primeiro && typeof window !== 'undefined') {
+        const el = document.getElementById(primeiro);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => el.focus(), 350);
+        }
+      }
+      push({
+        title: `Falta preencher ${Object.keys(novosErros).length} campo${
+          Object.keys(novosErros).length === 1 ? '' : 's'
+        }`,
+        description: 'Os campos em vermelho precisam ser preenchidos.',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -141,46 +159,88 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="grid gap-5">
+      <form onSubmit={handleSubmit} className="grid gap-5" noValidate>
         <div className="grid gap-2">
-          <Label htmlFor="nome">Nome completo *</Label>
+          <Label htmlFor="nome" className={erros.nome ? 'text-destructive' : ''}>
+            Nome completo *
+          </Label>
           <Input
             id="nome"
             value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            onChange={(e) => {
+              setNome(e.target.value);
+              if (erros.nome) setErros((er) => ({ ...er, nome: '' }));
+            }}
             placeholder="Seu nome"
             autoComplete="name"
-            required
+            aria-invalid={!!erros.nome}
+            className={
+              erros.nome
+                ? 'border-2 border-destructive bg-destructive/5 ring-2 ring-destructive/40 focus-visible:ring-destructive'
+                : ''
+            }
           />
-          {erros.nome && <p className="text-xs text-destructive">{erros.nome}</p>}
+          {erros.nome && (
+            <p className="flex items-center gap-1 text-sm font-bold text-destructive">
+              ⚠ {erros.nome}
+            </p>
+          )}
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="whatsapp">WhatsApp *</Label>
+          <Label htmlFor="whatsapp" className={erros.whatsapp ? 'text-destructive' : ''}>
+            WhatsApp *
+          </Label>
           <Input
             id="whatsapp"
             inputMode="tel"
             value={whatsapp}
-            onChange={(e) => setWhatsapp(formatarWhatsappBR(e.target.value))}
+            onChange={(e) => {
+              setWhatsapp(formatarWhatsappBR(e.target.value));
+              if (erros.whatsapp) setErros((er) => ({ ...er, whatsapp: '' }));
+            }}
             placeholder="(11) 98765-4321"
             autoComplete="tel"
-            required
+            aria-invalid={!!erros.whatsapp}
+            className={
+              erros.whatsapp
+                ? 'border-2 border-destructive bg-destructive/5 ring-2 ring-destructive/40 focus-visible:ring-destructive'
+                : ''
+            }
           />
-          {erros.whatsapp && <p className="text-xs text-destructive">{erros.whatsapp}</p>}
+          {erros.whatsapp && (
+            <p className="flex items-center gap-1 text-sm font-bold text-destructive">
+              ⚠ {erros.whatsapp}
+            </p>
+          )}
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="email">E-mail *</Label>
+          <Label htmlFor="email" className={erros.email ? 'text-destructive' : ''}>
+            E-mail *
+          </Label>
           <Input
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (erros.email) setErros((er) => ({ ...er, email: '' }));
+            }}
             placeholder="voce@email.com"
             autoComplete="email"
-            required
+            aria-invalid={!!erros.email}
+            className={
+              erros.email
+                ? 'border-2 border-destructive bg-destructive/5 ring-2 ring-destructive/40 focus-visible:ring-destructive'
+                : ''
+            }
           />
-          {erros.email && <p className="text-xs text-destructive">{erros.email}</p>}
+          {erros.email && (
+            <p className="flex items-center gap-1 text-sm font-bold text-destructive">
+              ⚠ {erros.email}
+            </p>
+          )}
         </div>
 
         <div className="grid gap-2">
@@ -205,33 +265,66 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
 
         {tipo === 'DONO' && (
           <div className="grid gap-2 animate-fade-in">
-            <Label htmlFor="restaurante">Nome do restaurante *</Label>
+            <Label
+              htmlFor="restauranteNome"
+              className={erros.restauranteNome ? 'text-destructive' : ''}
+            >
+              Nome do restaurante *
+            </Label>
             <Input
-              id="restaurante"
+              id="restauranteNome"
               value={restauranteNome}
-              onChange={(e) => setRestauranteNome(e.target.value)}
+              onChange={(e) => {
+                setRestauranteNome(e.target.value);
+                if (erros.restauranteNome)
+                  setErros((er) => ({ ...er, restauranteNome: '' }));
+              }}
               placeholder="Ex: Santa Fé"
-              required
+              aria-invalid={!!erros.restauranteNome}
+              className={
+                erros.restauranteNome
+                  ? 'border-2 border-destructive bg-destructive/5 ring-2 ring-destructive/40 focus-visible:ring-destructive'
+                  : ''
+              }
             />
-            {erros.restauranteNome && <p className="text-xs text-destructive">{erros.restauranteNome}</p>}
+            {erros.restauranteNome && (
+              <p className="flex items-center gap-1 text-sm font-bold text-destructive">
+                ⚠ {erros.restauranteNome}
+              </p>
+            )}
           </div>
         )}
 
         {(tipo === 'FORNECEDOR' || tipo === 'PRESTADOR') && (
           <div className="grid gap-2 animate-fade-in">
-            <Label htmlFor="empresa">
+            <Label
+              htmlFor="empresaNome"
+              className={erros.empresaNome ? 'text-destructive' : ''}
+            >
               {tipo === 'FORNECEDOR' ? 'Nome da empresa *' : 'Nome da empresa / serviço *'}
             </Label>
             <Input
-              id="empresa"
+              id="empresaNome"
               value={empresaNome}
-              onChange={(e) => setEmpresaNome(e.target.value)}
+              onChange={(e) => {
+                setEmpresaNome(e.target.value);
+                if (erros.empresaNome) setErros((er) => ({ ...er, empresaNome: '' }));
+              }}
               placeholder={
                 tipo === 'FORNECEDOR' ? 'Ex: Distribuidora X' : 'Ex: Agência Y · Sistema Z'
               }
-              required
+              aria-invalid={!!erros.empresaNome}
+              className={
+                erros.empresaNome
+                  ? 'border-2 border-destructive bg-destructive/5 ring-2 ring-destructive/40 focus-visible:ring-destructive'
+                  : ''
+              }
             />
-            {erros.empresaNome && <p className="text-xs text-destructive">{erros.empresaNome}</p>}
+            {erros.empresaNome && (
+              <p className="flex items-center gap-1 text-sm font-bold text-destructive">
+                ⚠ {erros.empresaNome}
+              </p>
+            )}
           </div>
         )}
 

@@ -52,6 +52,7 @@ model Inscricao {
   whatsappErro      String?
 
   checkedInAt     DateTime?
+  checkinFotoPath String?
   notasOperacao   String?          @db.Text
 
   createdAt       DateTime         @default(now())
