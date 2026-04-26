@@ -297,12 +297,12 @@ export default async function HomePage() {
           <p className="mt-4 text-sm">
             Dúvidas:{' '}
             <a
-              href="https://wa.me/5521983706066"
+              href="https://wa.me/5511911454499"
               target="_blank"
               rel="noopener noreferrer"
               className="font-bold text-santafe-orange-dark hover:underline"
             >
-              WhatsApp 21 98370-6066
+              WhatsApp 11 91145-4499
             </a>
           </p>
           <p className="mt-6 text-xs text-santafe-navy/50">
