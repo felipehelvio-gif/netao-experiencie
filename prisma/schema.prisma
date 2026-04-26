@@ -13,6 +13,7 @@ datasource db {
 enum TipoParticipante {
   DONO
   FORNECEDOR
+  PRESTADOR
   OUTRO
 }
 

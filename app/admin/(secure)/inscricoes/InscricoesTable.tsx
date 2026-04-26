@@ -15,7 +15,7 @@ type Inscricao = {
   nome: string;
   whatsapp: string;
   email: string;
-  tipo: 'DONO' | 'FORNECEDOR' | 'OUTRO';
+  tipo: 'DONO' | 'FORNECEDOR' | 'PRESTADOR' | 'OUTRO';
   restauranteNome: string | null;
   empresaNome: string | null;
   valorCentavos: number;
@@ -29,7 +29,7 @@ type Inscricao = {
 
 type Filtros = {
   status: '' | 'PENDENTE' | 'PAGA' | 'EXPIRADA' | 'CANCELADA';
-  tipo: '' | 'DONO' | 'FORNECEDOR' | 'OUTRO';
+  tipo: '' | 'DONO' | 'FORNECEDOR' | 'PRESTADOR' | 'OUTRO';
   q: string;
 };
 
@@ -133,6 +133,7 @@ export function InscricoesTable() {
             <option value="">Todos os tipos</option>
             <option value="DONO">Dono</option>
             <option value="FORNECEDOR">Fornecedor</option>
+            <option value="PRESTADOR">Prestador de serviço</option>
             <option value="OUTRO">Outro</option>
           </select>
           <Button variant="outline" size="default" onClick={carregar} disabled={loading}>

@@ -12,7 +12,7 @@ type Inscricao = {
   numeroComanda: number | null;
   nome: string;
   whatsapp: string;
-  tipo: 'DONO' | 'FORNECEDOR' | 'OUTRO';
+  tipo: 'DONO' | 'FORNECEDOR' | 'PRESTADOR' | 'OUTRO';
   restauranteNome: string | null;
   empresaNome: string | null;
   valorCentavos: number;
@@ -195,11 +195,14 @@ function CheckinCard({
             </p>
             <p className="mt-1 text-xl font-bold">{item.nome}</p>
             <p className="text-sm text-santafe-navy/70">
-              {item.tipo === 'DONO'
-                ? item.restauranteNome
-                : item.tipo === 'FORNECEDOR'
-                ? item.empresaNome
-                : 'Outro'}
+              {item.tipo === 'DONO' && (item.restauranteNome ?? 'Restaurante')}
+              {item.tipo === 'FORNECEDOR' &&
+                (item.empresaNome ? `${item.empresaNome} · fornecedor` : 'Fornecedor')}
+              {item.tipo === 'PRESTADOR' &&
+                (item.empresaNome
+                  ? `${item.empresaNome} · prestador de serviço`
+                  : 'Prestador de serviço')}
+              {item.tipo === 'OUTRO' && 'Outro'}
             </p>
             <p className="font-mono text-xs text-santafe-navy/60">
               {formatarWhatsappBR(item.whatsapp)} · {formatBRL(item.valorCentavos)}

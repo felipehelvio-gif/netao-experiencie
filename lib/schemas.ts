@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const whatsappRegex = /^(\+?55)?\s*\(?\d{2}\)?\s*9?\d{4}-?\d{4}$/;
 
-export const tipoParticipanteEnum = z.enum(['DONO', 'FORNECEDOR', 'OUTRO']);
+export const tipoParticipanteEnum = z.enum(['DONO', 'FORNECEDOR', 'PRESTADOR', 'OUTRO']);
 
 export const criarInscricaoSchema = z
   .object({
@@ -28,7 +28,7 @@ export const criarInscricaoSchema = z
         message: 'Informe o nome do restaurante',
       });
     }
-    if (v.tipo === 'FORNECEDOR' && !v.empresaNome) {
+    if ((v.tipo === 'FORNECEDOR' || v.tipo === 'PRESTADOR') && !v.empresaNome) {
       ctx.addIssue({
         code: 'custom',
         path: ['empresaNome'],

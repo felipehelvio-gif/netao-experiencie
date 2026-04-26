@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import { formatBRL, formatarWhatsappBR, isWhatsappValido } from '@/lib/utils';
 import { PixModal } from './PixModal';
 
-type Tipo = 'DONO' | 'FORNECEDOR' | 'OUTRO';
+type Tipo = 'DONO' | 'FORNECEDOR' | 'PRESTADOR' | 'OUTRO';
 
 type LoteAtual =
   | { esgotado: false; lote: number; valorCentavos: number; restantes: number; totalPagos: number; capacidade: number }
@@ -70,7 +70,8 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
     if (!isWhatsappValido(whatsapp)) novosErros.whatsapp = 'WhatsApp inválido';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) novosErros.email = 'E-mail inválido';
     if (tipo === 'DONO' && restauranteNome.trim().length < 2) novosErros.restauranteNome = 'Informe o nome do restaurante';
-    if (tipo === 'FORNECEDOR' && empresaNome.trim().length < 2) novosErros.empresaNome = 'Informe o nome da empresa';
+    if ((tipo === 'FORNECEDOR' || tipo === 'PRESTADOR') && empresaNome.trim().length < 2)
+      novosErros.empresaNome = 'Informe o nome da empresa';
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros);
@@ -88,7 +89,8 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
           email,
           tipo,
           restauranteNome: tipo === 'DONO' ? restauranteNome : undefined,
-          empresaNome: tipo === 'FORNECEDOR' ? empresaNome : undefined,
+          empresaNome:
+            tipo === 'FORNECEDOR' || tipo === 'PRESTADOR' ? empresaNome : undefined,
           comoConheceu: tipo === 'OUTRO' ? comoConheceu || undefined : undefined,
           valorEsperadoCentavos: valor,
         }),
@@ -187,6 +189,7 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
             {[
               { v: 'DONO', label: 'Dono de restaurante' },
               { v: 'FORNECEDOR', label: 'Fornecedor de restaurante' },
+              { v: 'PRESTADOR', label: 'Prestador de serviço' },
               { v: 'OUTRO', label: 'Outro' },
             ].map((opt) => (
               <label
@@ -214,14 +217,18 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
           </div>
         )}
 
-        {tipo === 'FORNECEDOR' && (
+        {(tipo === 'FORNECEDOR' || tipo === 'PRESTADOR') && (
           <div className="grid gap-2 animate-fade-in">
-            <Label htmlFor="empresa">Nome da empresa *</Label>
+            <Label htmlFor="empresa">
+              {tipo === 'FORNECEDOR' ? 'Nome da empresa *' : 'Nome da empresa / serviço *'}
+            </Label>
             <Input
               id="empresa"
               value={empresaNome}
               onChange={(e) => setEmpresaNome(e.target.value)}
-              placeholder="Ex: Distribuidora X"
+              placeholder={
+                tipo === 'FORNECEDOR' ? 'Ex: Distribuidora X' : 'Ex: Agência Y · Sistema Z'
+              }
               required
             />
             {erros.empresaNome && <p className="text-xs text-destructive">{erros.empresaNome}</p>}

@@ -112,7 +112,10 @@ export default async function AdminDashboardPage() {
                   <div>
                     <p className="font-bold">{i.nome}</p>
                     <p className="text-xs text-santafe-navy/60">
-                      {i.tipo === 'DONO' ? i.restauranteNome : i.tipo === 'FORNECEDOR' ? i.empresaNome : 'Outro'}
+                      {i.tipo === 'DONO' && (i.restauranteNome ?? 'Restaurante')}
+                      {i.tipo === 'FORNECEDOR' && (i.empresaNome ?? 'Fornecedor')}
+                      {i.tipo === 'PRESTADOR' && (i.empresaNome ?? 'Prestador de serviço')}
+                      {i.tipo === 'OUTRO' && 'Outro'}
                     </p>
                   </div>
                 </div>
