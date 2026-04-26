@@ -6,19 +6,45 @@
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-santafe-cream text-santafe-black font-sans;
+    font-feature-settings: "ss01", "cv11";
   }
 
-  /* heading default tracking */
   h1, h2, h3, h4 {
     @apply font-display tracking-wide;
+  }
+
+  ::selection {
+    background: #F39C3C;
+    color: #0A0A0A;
   }
 }
 
 @layer utilities {
+  /* PAPER — base "kraft paper" texture pra blocos cream */
+  .paper {
+    background-color: #FFF8EE;
+    background-image:
+      radial-gradient(rgba(140, 77, 17, 0.05) 1px, transparent 1px),
+      radial-gradient(rgba(10, 10, 10, 0.04) 1px, transparent 1px);
+    background-size: 4px 4px, 7px 7px;
+    background-position: 0 0, 2px 3px;
+  }
+
+  .paper-warm {
+    background-color: #F2E5C8;
+    background-image:
+      radial-gradient(rgba(140, 77, 17, 0.06) 1px, transparent 1px),
+      radial-gradient(rgba(10, 10, 10, 0.04) 1px, transparent 1px);
+    background-size: 4px 4px, 7px 7px;
+    background-position: 0 0, 2px 3px;
+  }
+
+  /* GRAIN — fundo com noise sutil aplicado direto no fundo do bloco */
   .grain {
     background-image:
       radial-gradient(rgba(10, 10, 10, 0.05) 1px, transparent 1px),
@@ -27,12 +53,66 @@
     background-position: 0 0, 2px 3px;
   }
 
+  /* HALFTONE — overlay de pontos pra hero */
+  .halftone {
+    background-image: radial-gradient(rgba(10, 10, 10, 0.18) 1.4px, transparent 1.6px);
+    background-size: 8px 8px;
+  }
+
+  .halftone-orange {
+    background-image: radial-gradient(rgba(243, 156, 60, 0.45) 1.4px, transparent 1.6px);
+    background-size: 8px 8px;
+  }
+
+  /* STAMP — selo carimbo rotacionado */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    border: 3px solid currentColor;
+    padding: 0.55rem 1.1rem;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 currentColor;
+    background: rgba(255, 248, 238, 0.04);
+  }
+  .stamp-rotate-l { transform: rotate(-7deg); }
+  .stamp-rotate-r { transform: rotate(6deg); }
+
+  /* TAPE — fita washi rotacionada */
+  .tape {
+    position: absolute;
+    height: 1.6rem;
+    width: 5.5rem;
+    background: rgba(243, 156, 60, 0.92);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.12) 0,
+        rgba(255, 255, 255, 0.12) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+  }
+
+  /* TEXT STROKE */
   .text-stroke {
     -webkit-text-stroke: 2px #1B2B3F;
     color: transparent;
   }
+  .text-stroke-orange {
+    -webkit-text-stroke: 2.5px #F39C3C;
+    color: transparent;
+  }
+  .text-stroke-cream {
+    -webkit-text-stroke: 2px #FFF8EE;
+    color: transparent;
+  }
 
-  /* Diagonal stripe pattern for accents */
+  /* STRIPES — diagonal listras */
   .stripes-orange {
     background-image: repeating-linear-gradient(
       135deg,
@@ -41,5 +121,84 @@
       #FF8A1A 14px,
       #FF8A1A 28px
     );
+  }
+  .stripes-navy {
+    background-image: repeating-linear-gradient(
+      135deg,
+      #1B2B3F 0,
+      #1B2B3F 14px,
+      #2A3F5C 14px,
+      #2A3F5C 28px
+    );
+  }
+
+  /* MARQUEE mask edges */
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  }
+
+  /* HARD shadow utility (estilo cartaz) */
+  .shadow-hard {
+    box-shadow: 6px 6px 0 0 #1B2B3F;
+  }
+  .shadow-hard-lg {
+    box-shadow: 10px 10px 0 0 #1B2B3F;
+  }
+  .shadow-hard-orange {
+    box-shadow: 6px 6px 0 0 #F39C3C;
+  }
+
+  /* Ember radial glow — fundo de hero "noite de churrasco" */
+  .ember-glow {
+    background: radial-gradient(
+      ellipse at center,
+      rgba(232, 74, 31, 0.28) 0%,
+      rgba(232, 74, 31, 0.08) 35%,
+      transparent 70%
+    );
+  }
+
+  /* Live dot pulse */
+  .live-dot {
+    position: relative;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #E84A1F;
+  }
+  .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #E84A1F;
+    animation: pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Section index number "/01", "/02" — slab outline gigante */
+  .section-index {
+    font-family: var(--font-slab), serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 2px #1B2B3F;
+    letter-spacing: -0.04em;
+  }
+
+  /* Wavy SVG underline */
+  .wavy-underline {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 12'%3E%3Cpath d='M0 6 Q 10 0 20 6 T 40 6 T 60 6 T 80 6' stroke='%23F39C3C' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-position: 0 100%;
+    background-size: 80px 12px;
+    padding-bottom: 14px;
+  }
+
+  /* Vignette pro hero embaixo (transição suave) */
+  .vignette-bottom {
+    mask-image: linear-gradient(180deg, black 0%, black 75%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, black 0%, black 75%, transparent 100%);
   }
 }

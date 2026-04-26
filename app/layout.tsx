@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Anton, Inter } from 'next/font/google';
+import { Anton, Inter, Alfa_Slab_One, Fraunces } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
 
@@ -13,6 +13,20 @@ const display = Anton({
 const sans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+const slab = Alfa_Slab_One({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-slab',
+  display: 'swap',
+});
+
+const serif = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  axes: ['SOFT', 'WONK'],
   display: 'swap',
 });
 
@@ -32,7 +46,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#F39C3C',
+  themeColor: '#1B2B3F',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -40,7 +54,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${display.variable} ${sans.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${display.variable} ${sans.variable} ${slab.variable} ${serif.variable}`}
+    >
       <body className="min-h-screen">
         <ToastProvider>{children}</ToastProvider>
       </body>
