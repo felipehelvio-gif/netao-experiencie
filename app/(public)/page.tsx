@@ -19,7 +19,7 @@ export const revalidate = 0;
 const PARTICIPANTES = [
   { num: '01', nome: 'André Adalba', papel: 'Convidado especial' },
   { num: '02', nome: 'Netão Santa Fé', papel: 'Anfitrião' },
-  { num: '03', nome: 'Júnior Petiscos Burguer', papel: 'Convidado especial' },
+  { num: '03', nome: 'Junior Peto Burger', papel: 'Convidado especial' },
   { num: '04', nome: 'Rafa Soares Santa Fé', papel: 'Convidado especial' },
   { num: '05', nome: 'Silvinho', papel: 'Convidado especial' },
   { num: '06', nome: 'Badaró', papel: 'Cozinheiro' },
