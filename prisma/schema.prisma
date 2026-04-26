@@ -1,0 +1,80 @@
+// Santa Fé Experience — Schema Prisma
+// Postgres + cuid + comanda sequencial atribuída só após pagamento confirmado.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoParticipante {
+  DONO
+  FORNECEDOR
+  OUTRO
+}
+
+enum StatusInscricao {
+  PENDENTE
+  PAGA
+  EXPIRADA
+  CANCELADA
+}
+
+model Inscricao {
+  id              String           @id @default(cuid())
+  nome            String
+  whatsapp        String
+  email           String
+  tipo            TipoParticipante
+  restauranteNome String?
+  empresaNome     String?
+  comoConheceu    String?
+
+  lote            Int
+  valorCentavos   Int
+  status          StatusInscricao  @default(PENDENTE)
+
+  numeroComanda   Int?             @unique
+
+  mpPaymentId     String?          @unique
+  pixQrCode       String?          @db.Text
+  pixCopyPaste    String?          @db.Text
+
+  paidAt          DateTime?
+  paidManually    Boolean          @default(false)
+  expiresAt       DateTime
+
+  whatsappEnviadoEm DateTime?
+  whatsappErro      String?
+
+  checkedInAt     DateTime?
+  notasOperacao   String?          @db.Text
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([status])
+  @@index([whatsapp])
+  @@index([numeroComanda])
+}
+
+model ListaEspera {
+  id        String   @id @default(cuid())
+  nome      String
+  whatsapp  String
+  createdAt DateTime @default(now())
+
+  @@index([whatsapp])
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

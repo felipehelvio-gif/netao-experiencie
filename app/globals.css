@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-santafe-cream text-santafe-black font-sans;
+  }
+
+  /* heading default tracking */
+  h1, h2, h3, h4 {
+    @apply font-display tracking-wide;
+  }
+}
+
+@layer utilities {
+  .grain {
+    background-image:
+      radial-gradient(rgba(10, 10, 10, 0.05) 1px, transparent 1px),
+      radial-gradient(rgba(10, 10, 10, 0.04) 1px, transparent 1px);
+    background-size: 4px 4px, 7px 7px;
+    background-position: 0 0, 2px 3px;
+  }
+
+  .text-stroke {
+    -webkit-text-stroke: 2px #1B2B3F;
+    color: transparent;
+  }
+
+  /* Diagonal stripe pattern for accents */
+  .stripes-orange {
+    background-image: repeating-linear-gradient(
+      135deg,
+      #F39C3C 0,
+      #F39C3C 14px,
+      #FF8A1A 14px,
+      #FF8A1A 28px
+    );
+  }
+}

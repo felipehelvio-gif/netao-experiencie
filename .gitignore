@@ -1,0 +1,31 @@
+node_modules
+.next
+.next/
+out/
+build
+dist
+
+# Env
+.env
+.env*.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Prisma
+prisma/dev.db
+prisma/migrations/dev/
+
+# Misc
+*.tsbuildinfo
+next-env.d.ts
