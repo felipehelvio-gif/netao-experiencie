@@ -177,8 +177,6 @@ export function PixModal({
                 readOnly
                 data-pix-copypaste
                 value={data.pix.copyPaste}
-                onFocus={(e) => e.currentTarget.select()}
-                onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
                 className="flex-1 rounded-md border-2 border-border bg-white px-3 py-2 text-xs font-mono"
               />
               <Button onClick={(e) => copiar(e)} size="sm" type="button">
