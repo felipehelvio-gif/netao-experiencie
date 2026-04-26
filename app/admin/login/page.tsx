@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
-export default function AdminLoginPage() {
+export const dynamic = 'force-dynamic';
+
+function LoginForm() {
   const router = useRouter();
   const sp = useSearchParams();
   const next = sp.get('next') ?? '/admin';
@@ -41,32 +43,40 @@ export default function AdminLoginPage() {
   };
 
   return (
+    <form
+      onSubmit={submit}
+      className="w-full max-w-sm rounded-lg border-2 border-santafe-orange bg-santafe-cream p-8 shadow-[6px_6px_0_0_#F39C3C]"
+    >
+      <div className="text-center">
+        <Lock className="mx-auto h-10 w-10 text-santafe-orange" />
+        <h1 className="mt-3 font-display text-3xl uppercase text-santafe-navy">Admin</h1>
+        <p className="text-sm text-santafe-navy/70">Santa Fé Experience</p>
+      </div>
+      <div className="mt-6 grid gap-2">
+        <Label htmlFor="password">Senha</Label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoFocus
+          required
+        />
+        {erro && <p className="text-sm text-destructive">{erro}</p>}
+      </div>
+      <Button type="submit" className="mt-5 w-full" disabled={loading} size="lg">
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Entrar'}
+      </Button>
+    </form>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
     <main className="flex min-h-screen items-center justify-center bg-santafe-navy p-4">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-sm rounded-lg border-2 border-santafe-orange bg-santafe-cream p-8 shadow-[6px_6px_0_0_#F39C3C]"
-      >
-        <div className="text-center">
-          <Lock className="mx-auto h-10 w-10 text-santafe-orange" />
-          <h1 className="mt-3 font-display text-3xl uppercase text-santafe-navy">Admin</h1>
-          <p className="text-sm text-santafe-navy/70">Santa Fé Experience</p>
-        </div>
-        <div className="mt-6 grid gap-2">
-          <Label htmlFor="password">Senha</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoFocus
-            required
-          />
-          {erro && <p className="text-sm text-destructive">{erro}</p>}
-        </div>
-        <Button type="submit" className="mt-5 w-full" disabled={loading} size="lg">
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Entrar'}
-        </Button>
-      </form>
+      <React.Suspense fallback={null}>
+        <LoginForm />
+      </React.Suspense>
     </main>
   );
 }
