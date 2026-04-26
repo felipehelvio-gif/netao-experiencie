@@ -498,11 +498,11 @@ export default async function HomePage() {
             <div className="relative grid gap-0 overflow-hidden rounded-md border-2 border-santafe-navy shadow-hard-lg md:grid-cols-2">
               <div className="relative h-72 md:h-auto">
                 <iframe
-                  src="https://www.google.com/maps?q=Rua%20Carlos%20Weber%2064%20Vila%20Leopoldina%20S%C3%A3o%20Paulo&output=embed"
+                  src="https://www.google.com/maps?q=Santa+F%C3%A9+A+Costela+Vila+Leopoldina+R.+Carlos+Weber+64&output=embed"
                   className="absolute inset-0 h-full w-full"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Mapa Santa Fé"
+                  title="Mapa Santa Fé A Costela"
                 />
               </div>
               <div className="relative bg-santafe-navy p-8 text-santafe-cream md:p-10">
@@ -521,7 +521,7 @@ export default async function HomePage() {
                   Vila Leopoldina · São Paulo
                 </p>
                 <a
-                  href="https://maps.google.com/?q=Rua+Carlos+Weber+64+Vila+Leopoldina+S%C3%A3o+Paulo"
+                  href="https://maps.app.goo.gl/842c4epnKn3cVK8i8?g_st=ic"
                   target="_blank"
                   rel="noopener"
                   className="mt-6 inline-flex items-center gap-2 border-b-2 border-santafe-orange pb-1 text-sm font-bold uppercase tracking-widest text-santafe-orange transition-colors hover:text-santafe-cream"
