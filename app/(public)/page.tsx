@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { calcularLoteAtual, TABELA_LOTES } from '@/lib/lote';
 import { formatBRL } from '@/lib/utils';
 import { InscricaoForm } from '@/components/landing/InscricaoForm';
+import { PratoSecreto } from '@/components/landing/PratoSecreto';
 import {
   MapPin,
   Music,
@@ -20,11 +21,13 @@ const PARTICIPANTES = [
   { num: '01', nome: 'André Adalba', papel: 'Convidado especial' },
   { num: '02', nome: 'Netão Santa Fé', papel: 'Anfitrião' },
   { num: '03', nome: 'Junior Peto\nJohns Burguer', papel: 'Convidado especial' },
-  { num: '04', nome: 'Rafa Soares Santa Fé', papel: 'Convidado especial' },
+  { num: '04', nome: 'Rafa Soares', papel: 'Convidado especial' },
   { num: '05', nome: 'Silvinho', papel: 'Convidado especial' },
   { num: '06', nome: 'Badaró', papel: 'Cozinheiro' },
 ];
 
+// Sete pratos selecionados feitos pelos cozinheiros pra noite. O #07 é secreto e fica
+// renderizado pelo componente <PratoSecreto /> com animação de "decode" no clique.
 const CARDAPIO = [
   'Burguer Johns',
   'Taco de Costela e Brócolis com Coalhada',
@@ -32,8 +35,6 @@ const CARDAPIO = [
   'Milho Grelhado',
   'Arroz Caldoso',
   'Cupim Santa Fé',
-  'Língua no Vinho Malbec',
-  '+ um prato secreto',
 ];
 
 // Marquee items (loopam infinito)
@@ -262,12 +263,13 @@ export default async function HomePage() {
                 <h3 className="mt-6 font-display text-4xl uppercase leading-tight text-santafe-navy md:text-5xl">
                   Open food
                   <br />
-                  <span className="font-serif text-2xl italic">cardápio</span>{' '}
-                  diferenciado
+                  <span className="font-serif text-2xl italic">sete pratos</span>{' '}
+                  selecionados
                 </h3>
                 <p className="mt-4 max-w-sm text-sm text-santafe-navy/80">
-                  Sete pratos do menu Santa Fé + um secreto. Vai e vem da cozinha
-                  a noite toda.
+                  Pratos pensados e feitos pelos cozinheiros especialmente pra essa
+                  noite. Vai e vem da cozinha a noite toda — incluindo um{' '}
+                  <span className="font-bold">prato secreto</span>.
                 </p>
               </div>
             </div>
@@ -318,7 +320,7 @@ export default async function HomePage() {
 
             <div className="relative flex flex-col justify-center">
               <p className="mb-2 font-serif text-base italic text-santafe-navy/70">
-                — o cardápio da noite —
+                — sete pratos selecionados pelos cozinheiros —
               </p>
               <h3 className="font-display text-5xl uppercase leading-none text-santafe-navy md:text-6xl">
                 Mesa farta
@@ -335,6 +337,7 @@ export default async function HomePage() {
                     <span className="font-medium text-santafe-navy">{item}</span>
                   </li>
                 ))}
+                <PratoSecreto />
               </ol>
             </div>
           </div>
