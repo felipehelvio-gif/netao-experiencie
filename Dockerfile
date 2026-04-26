@@ -40,5 +40,5 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 USER nextjs
 EXPOSE 3000
 
-# Roda migrations no boot e sobe o servidor
-CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node server.js"]
+# Sincroniza schema no banco (db push: sem migrations versionadas) e sobe o servidor
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push --skip-generate --accept-data-loss && node server.js"]
