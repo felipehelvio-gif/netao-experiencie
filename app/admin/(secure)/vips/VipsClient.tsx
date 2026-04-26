@@ -110,8 +110,9 @@ export function VipsClient() {
             <h2 className="font-display text-2xl uppercase">Cadastrar VIP</h2>
           </div>
           <p className="mb-4 text-sm text-santafe-navy/70">
-            Cria inscrição com comanda imediata e dispara WhatsApp de confirmação.
-            Sem PIX, sem cobrança.
+            Cria inscrição com <span className="font-bold">comanda especial #500 → #301</span>{' '}
+            (decrescente). Sem PIX, sem cobrança · WhatsApp disparado na hora.
+            Limite: 200 VIPs.
           </p>
           <form onSubmit={submit} className="grid gap-4">
             <div className="grid gap-1.5">
@@ -167,7 +168,9 @@ export function VipsClient() {
         <CardContent className="p-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="font-display text-2xl uppercase">
-              VIPs cadastrados <span className="text-santafe-orange">{vips.length}</span>
+              VIPs cadastrados{' '}
+              <span className="text-santafe-orange">{vips.length}</span>
+              <span className="ml-1 text-base text-santafe-navy/60">/ 200</span>
             </h2>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-santafe-navy/50" />

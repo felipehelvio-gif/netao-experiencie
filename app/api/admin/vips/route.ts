@@ -19,6 +19,11 @@ const vipSchema = z.object({
 
 const EVENTO_FIM = new Date('2026-04-28T03:00:00.000Z'); // 28/04 madrugada (fim do evento)
 
+// VIPs ocupam comandas decrescentes a partir de 500 (1º VIP = #500, 2º = #499...).
+// Limite: 200 VIPs (vai até #301 inclusive). Pagantes regulares ficam em 1-220.
+const VIP_NUMERO_INICIAL = 500;
+const VIP_NUMERO_MINIMO = 301; // 500 - 199 = 301; total 200 números (500..301)
+
 export async function POST(req: NextRequest) {
   const role = await requireRoleApi(['ADMIN']);
   if (!role) return NextResponse.json({ erro: 'não autorizado' }, { status: 403 });
@@ -48,9 +53,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // VIP: lote=0, valorCentavos=0, paidManually=true, status='PAGA' direto.
-      const ultima = await tx.inscricao.aggregate({ _max: { numeroComanda: true } });
-      const proximo = (ultima._max.numeroComanda ?? 0) + 1;
+      // VIPs: range decrescente 500 → 301. Pega o menor já atribuído (no range)
+      // e desce 1; se ainda não tem nenhum, começa em 500.
+      const ja = await tx.inscricao.aggregate({
+        where: {
+          lote: 0,
+          valorCentavos: 0,
+          numeroComanda: { gte: VIP_NUMERO_MINIMO, lte: VIP_NUMERO_INICIAL },
+        },
+        _min: { numeroComanda: true },
+      });
+      const proximo = ja._min.numeroComanda ? ja._min.numeroComanda - 1 : VIP_NUMERO_INICIAL;
+      if (proximo < VIP_NUMERO_MINIMO) {
+        throw new Error('limite_vip_atingido');
+      }
 
       const novo = await tx.inscricao.create({
         data: {
@@ -94,6 +110,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, id: inscricaoId, comanda });
   } catch (err) {
+    if (err instanceof Error && err.message === 'limite_vip_atingido') {
+      return NextResponse.json(
+        {
+          erro:
+            'Limite de 200 VIPs atingido (#500 ao #301). Pra liberar mais, deleta algum VIP existente.',
+        },
+        { status: 409 },
+      );
+    }
     console.error('[vips] erro', err);
     return NextResponse.json({ erro: 'falha ao criar VIP' }, { status: 500 });
   }
