@@ -37,6 +37,10 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
+# Diretório de uploads (volume Docker monta aqui).
+# Pré-cria com owner nextjs pra não dar EACCES quando o volume vazio é montado.
+RUN mkdir -p /app/uploads/checkins && chown -R nextjs:nodejs /app/uploads
+
 USER nextjs
 EXPOSE 3000
 

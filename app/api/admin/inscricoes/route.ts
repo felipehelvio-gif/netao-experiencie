@@ -19,13 +19,21 @@ export async function GET(req: NextRequest) {
   if (status) where.status = status;
   if (tipo) where.tipo = tipo;
   if (q) {
-    const numero = parseInt(q.replace(/\D/g, ''), 10);
-    where.OR = [
+    const apenasDigitos = q.replace(/\D/g, '');
+    const numero = apenasDigitos ? parseInt(apenasDigitos, 10) : NaN;
+    const ors: any[] = [
       { nome: { contains: q, mode: 'insensitive' } },
-      { whatsapp: { contains: q.replace(/\D/g, '') } },
       { email: { contains: q.toLowerCase(), mode: 'insensitive' } },
-      ...(Number.isFinite(numero) ? [{ numeroComanda: numero }] : []),
     ];
+    // Só busca por whatsapp/comanda se tem dígitos suficientes — evita
+    // que `whatsapp: { contains: '' }` retorne TODA a base quando busca é só letras.
+    if (apenasDigitos.length >= 3) {
+      ors.push({ whatsapp: { contains: apenasDigitos } });
+    }
+    if (Number.isFinite(numero)) {
+      ors.push({ numeroComanda: numero });
+    }
+    where.OR = ors;
   }
 
   const items = await prisma.inscricao.findMany({
