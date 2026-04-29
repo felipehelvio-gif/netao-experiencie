@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { listaEsperaSchema } from '@/lib/schemas';
 import { rateLimit } from '@/lib/rateLimit';
 import { normalizarWhatsapp } from '@/lib/utils';
+import { eventoEncerrado } from '@/lib/lote';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +14,10 @@ function clientIp(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  if (eventoEncerrado()) {
+    return NextResponse.json({ erro: 'encerrado' }, { status: 410 });
+  }
+
   const ip = clientIp(req);
   const rl = rateLimit({ key: `espera:${ip}`, windowMs: 30_000, max: 1 });
   if (!rl.ok) {

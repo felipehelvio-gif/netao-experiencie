@@ -137,7 +137,23 @@ export default async function HomePage() {
 
               {/* Lote scoreboard ao vivo — com barra de progresso e urgência */}
               <div className="mt-8 flex flex-wrap items-end gap-5">
-                {!lote.esgotado ? (
+                {lote.encerrado ? (
+                  <div className="w-full max-w-md rounded-lg border-4 border-santafe-cream bg-santafe-cream p-6 text-santafe-navy shadow-hard-orange md:w-[460px]">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-santafe-orange-deep">
+                      Edição encerrada
+                    </p>
+                    <p className="mt-2 font-display text-5xl uppercase leading-none">
+                      Obrigado!
+                    </p>
+                    <p className="mt-3 font-serif text-base italic text-santafe-navy/80">
+                      A Segunda Sem Folga · Santa Fé Experience aconteceu em 27 de
+                      abril com a casa cheia. Foi inesquecível com vocês.
+                    </p>
+                    <p className="mt-4 text-sm font-bold uppercase tracking-wide text-santafe-orange-deep">
+                      A próxima edição vem aí — fica de olho.
+                    </p>
+                  </div>
+                ) : !lote.esgotado ? (
                   (() => {
                     const pct = Math.round(lote.progresso * 100);
                     const proxValor = lote.proximoLote
@@ -212,13 +228,15 @@ export default async function HomePage() {
                   </div>
                 )}
 
-                <a
-                  href="#inscricao"
-                  className="group relative inline-flex h-16 items-center justify-center gap-3 rounded-md bg-santafe-orange px-8 font-display text-2xl uppercase tracking-wide text-santafe-black shadow-[0_6px_0_0_#8C4D11] transition-all hover:translate-y-[3px] hover:bg-santafe-orange-bright hover:shadow-[0_3px_0_0_#8C4D11] active:translate-y-[6px] active:shadow-[0_0_0_0_#8C4D11]"
-                >
-                  Garantir agora
-                  <ArrowDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
-                </a>
+                {!lote.encerrado && (
+                  <a
+                    href="#inscricao"
+                    className="group relative inline-flex h-16 items-center justify-center gap-3 rounded-md bg-santafe-orange px-8 font-display text-2xl uppercase tracking-wide text-santafe-black shadow-[0_6px_0_0_#8C4D11] transition-all hover:translate-y-[3px] hover:bg-santafe-orange-bright hover:shadow-[0_3px_0_0_#8C4D11] active:translate-y-[6px] active:shadow-[0_0_0_0_#8C4D11]"
+                  >
+                    Garantir agora
+                    <ArrowDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
+                  </a>
+                )}
               </div>
             </div>
 
@@ -457,8 +475,12 @@ export default async function HomePage() {
             {TABELA_LOTES.map((t, idx) => {
               const inicio = idx === 0 ? 1 : TABELA_LOTES[idx - 1].ate + 1;
               const fim = t.ate;
-              const isAtual = !lote.esgotado && lote.lote === t.lote;
-              const isPassado = lote.esgotado || (!lote.esgotado && lote.lote > t.lote);
+              const isAtual =
+                !lote.esgotado && !lote.encerrado && lote.lote === t.lote;
+              const isPassado =
+                lote.esgotado ||
+                lote.encerrado ||
+                (!lote.esgotado && !lote.encerrado && lote.lote > t.lote);
               return (
                 <div
                   key={t.lote}
@@ -583,50 +605,96 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SEÇÃO 05 — FORM */}
+      {/* SEÇÃO 05 — FORM (ou bloco de encerrado) */}
       <section
         id="inscricao"
         className="relative overflow-hidden bg-santafe-navy py-20 text-santafe-cream md:py-28"
       >
         <div className="absolute inset-0 halftone-orange opacity-15" />
         <div className="container relative px-4">
-          <div className="mx-auto max-w-xl text-center">
-            <p
-              className="section-index mx-auto"
-              style={{ WebkitTextStroke: '2px #FFF8EE' }}
-            >
-              / 05
-            </p>
-            <h2 className="mt-2 font-display text-5xl uppercase leading-none md:text-7xl">
-              Garante
-              <br />
-              <span className="text-santafe-orange">sua vaga</span>
-            </h2>
-            <p className="mt-4 font-serif text-lg italic text-santafe-cream/80">
-              PIX em segundos · confirmação no WhatsApp com sua comanda
-            </p>
-          </div>
+          {lote.encerrado ? (
+            <div className="mx-auto max-w-xl text-center">
+              <p
+                className="section-index mx-auto"
+                style={{ WebkitTextStroke: '2px #FFF8EE' }}
+              >
+                / 05
+              </p>
+              <h2 className="mt-2 font-display text-5xl uppercase leading-none md:text-7xl">
+                Edição
+                <br />
+                <span className="text-santafe-orange">encerrada</span>
+              </h2>
+              <p className="mt-6 font-serif text-lg italic text-santafe-cream/80">
+                A casa fechou — vendas encerradas em 27 de abril.
+              </p>
 
-          {/* Form box — receipt aesthetic */}
-          <div className="relative mx-auto mt-12 max-w-md">
-            {/* Tape pieces */}
-            <span className="tape -left-4 top-4 rotate-[-10deg]" />
-            <span className="tape -right-4 top-4 rotate-[10deg]" />
+              <div className="relative mx-auto mt-12 max-w-md">
+                <span className="tape -left-4 top-4 rotate-[-10deg]" />
+                <span className="tape -right-4 top-4 rotate-[10deg]" />
 
-            <div className="relative rounded-lg border-4 border-santafe-orange bg-santafe-cream p-6 text-santafe-navy shadow-[10px_10px_0_0_#F39C3C] md:p-8">
-              {/* Receipt header */}
-              <div className="mb-6 border-b-2 border-dashed border-santafe-navy/40 pb-4 text-center">
-                <p className="font-slab text-xs uppercase tracking-[0.3em] text-santafe-navy/70">
-                  · Pedido de ingresso ·
+                <div className="relative rounded-lg border-4 border-santafe-orange bg-santafe-cream p-6 text-santafe-navy shadow-[10px_10px_0_0_#F39C3C] md:p-8">
+                  <div className="mb-4 border-b-2 border-dashed border-santafe-navy/40 pb-4 text-center">
+                    <p className="font-slab text-xs uppercase tracking-[0.3em] text-santafe-navy/70">
+                      · Próxima edição ·
+                    </p>
+                  </div>
+                  <p className="text-center font-serif text-base italic text-santafe-navy/80">
+                    Quer ser avisado da próxima Segunda Sem Folga?
+                  </p>
+                  <a
+                    href="https://wa.me/5511911454499?text=Quero%20ser%20avisado%20da%20pr%C3%B3xima%20edi%C3%A7%C3%A3o%20do%20Santa%20F%C3%A9%20Experience"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-md bg-santafe-orange px-6 font-display text-lg uppercase tracking-wide text-santafe-black shadow-[0_4px_0_0_#8C4D11] transition-all hover:translate-y-[2px] hover:bg-santafe-orange-bright hover:shadow-[0_2px_0_0_#8C4D11]"
+                  >
+                    Falar no WhatsApp
+                  </a>
+                  <p className="mt-3 text-center text-xs uppercase tracking-wider text-santafe-navy/60">
+                    11 91145-4499
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mx-auto max-w-xl text-center">
+                <p
+                  className="section-index mx-auto"
+                  style={{ WebkitTextStroke: '2px #FFF8EE' }}
+                >
+                  / 05
                 </p>
-                <p className="mt-1 font-serif text-base italic text-santafe-navy">
-                  Santa Fé Experience · 27/04
+                <h2 className="mt-2 font-display text-5xl uppercase leading-none md:text-7xl">
+                  Garante
+                  <br />
+                  <span className="text-santafe-orange">sua vaga</span>
+                </h2>
+                <p className="mt-4 font-serif text-lg italic text-santafe-cream/80">
+                  PIX em segundos · confirmação no WhatsApp com sua comanda
                 </p>
               </div>
 
-              <InscricaoForm loteInicial={lote} />
-            </div>
-          </div>
+              {/* Form box — receipt aesthetic */}
+              <div className="relative mx-auto mt-12 max-w-md">
+                <span className="tape -left-4 top-4 rotate-[-10deg]" />
+                <span className="tape -right-4 top-4 rotate-[10deg]" />
+
+                <div className="relative rounded-lg border-4 border-santafe-orange bg-santafe-cream p-6 text-santafe-navy shadow-[10px_10px_0_0_#F39C3C] md:p-8">
+                  <div className="mb-6 border-b-2 border-dashed border-santafe-navy/40 pb-4 text-center">
+                    <p className="font-slab text-xs uppercase tracking-[0.3em] text-santafe-navy/70">
+                      · Pedido de ingresso ·
+                    </p>
+                    <p className="mt-1 font-serif text-base italic text-santafe-navy">
+                      Santa Fé Experience · 27/04
+                    </p>
+                  </div>
+
+                  <InscricaoForm loteInicial={lote} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -686,55 +754,61 @@ export default async function HomePage() {
         </div>
       </footer>
 
-      {/* STICKY BOTTOM CTA — só mobile */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-santafe-navy bg-santafe-navy px-4 py-3 text-santafe-cream shadow-[0_-4px_20px_rgba(0,0,0,0.4)] md:hidden">
-        {!lote.esgotado &&
-          (() => {
-            const pct = Math.round(lote.progresso * 100);
-            const quaseLa = pct >= 70;
-            return (
-              <div className="mb-2">
-                <div className="flex items-baseline justify-between text-[9px] font-bold uppercase tracking-widest">
-                  <span className="text-santafe-orange">
-                    Lote {lote.lote} · {lote.restantes} vaga{lote.restantes === 1 ? '' : 's'}
-                  </span>
-                  <span className={quaseLa ? 'text-santafe-ember' : 'text-santafe-cream/70'}>
-                    {pct}% vendido
-                  </span>
-                </div>
-                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-santafe-cream/15">
-                  <div
-                    className={`h-full transition-all duration-700 ${
-                      quaseLa ? 'bg-santafe-ember' : 'bg-santafe-orange'
-                    }`}
-                    style={{ width: `${Math.max(pct, 4)}%` }}
-                  />
-                </div>
+      {/* STICKY BOTTOM CTA — só mobile, e só durante a venda */}
+      {!lote.encerrado && (
+        <>
+          <div className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-santafe-navy bg-santafe-navy px-4 py-3 text-santafe-cream shadow-[0_-4px_20px_rgba(0,0,0,0.4)] md:hidden">
+            {!lote.esgotado &&
+              (() => {
+                const pct = Math.round(lote.progresso * 100);
+                const quaseLa = pct >= 70;
+                return (
+                  <div className="mb-2">
+                    <div className="flex items-baseline justify-between text-[9px] font-bold uppercase tracking-widest">
+                      <span className="text-santafe-orange">
+                        Lote {lote.lote} · {lote.restantes} vaga
+                        {lote.restantes === 1 ? '' : 's'}
+                      </span>
+                      <span
+                        className={quaseLa ? 'text-santafe-ember' : 'text-santafe-cream/70'}
+                      >
+                        {pct}% vendido
+                      </span>
+                    </div>
+                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-santafe-cream/15">
+                      <div
+                        className={`h-full transition-all duration-700 ${
+                          quaseLa ? 'bg-santafe-ember' : 'bg-santafe-orange'
+                        }`}
+                        style={{ width: `${Math.max(pct, 4)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 leading-tight">
+                <p className="font-slab text-2xl leading-none text-santafe-cream">
+                  {!lote.esgotado ? formatBRL(lote.valorCentavos) : '—'}
+                </p>
+                {!lote.esgotado && lote.proximoLote && (
+                  <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-santafe-cream/60">
+                    depois vira {formatBRL(lote.proximoLote.valorCentavos)}
+                  </p>
+                )}
               </div>
-            );
-          })()}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 leading-tight">
-            <p className="font-slab text-2xl leading-none text-santafe-cream">
-              {!lote.esgotado ? formatBRL(lote.valorCentavos) : '—'}
-            </p>
-            {!lote.esgotado && lote.proximoLote && (
-              <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-santafe-cream/60">
-                depois vira {formatBRL(lote.proximoLote.valorCentavos)}
-              </p>
-            )}
+              <a
+                href="#inscricao"
+                className="flex h-12 items-center justify-center rounded-md bg-santafe-orange px-5 font-display text-base uppercase tracking-wide text-santafe-black shadow-[0_3px_0_0_#8C4D11] active:translate-y-[3px] active:shadow-[0_0_0_0_#8C4D11]"
+              >
+                Garantir
+              </a>
+            </div>
           </div>
-          <a
-            href="#inscricao"
-            className="flex h-12 items-center justify-center rounded-md bg-santafe-orange px-5 font-display text-base uppercase tracking-wide text-santafe-black shadow-[0_3px_0_0_#8C4D11] active:translate-y-[3px] active:shadow-[0_0_0_0_#8C4D11]"
-          >
-            Garantir
-          </a>
-        </div>
-      </div>
-
-      {/* Spacer pra sticky bar não cobrir conteúdo (incluindo a barra de progresso) */}
-      <div className="h-28 md:hidden" />
+          {/* Spacer pra sticky bar não cobrir conteúdo */}
+          <div className="h-28 md:hidden" />
+        </>
+      )}
     </main>
   );
 }

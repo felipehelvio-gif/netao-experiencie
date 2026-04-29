@@ -47,6 +47,12 @@ export async function POST(req: NextRequest) {
 
   // Lote atual
   const lote = await calcularLoteAtual();
+  if (lote.encerrado) {
+    return NextResponse.json(
+      { erro: 'encerrado', mensagem: 'O evento já aconteceu — vendas encerradas.' },
+      { status: 410 },
+    );
+  }
   if (lote.esgotado) {
     return NextResponse.json({ erro: 'esgotado' }, { status: 410 });
   }

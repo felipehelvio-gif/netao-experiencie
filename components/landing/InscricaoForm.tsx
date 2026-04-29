@@ -13,8 +13,21 @@ import { PixModal } from './PixModal';
 type Tipo = 'DONO' | 'FORNECEDOR' | 'PRESTADOR' | 'OUTRO';
 
 type LoteAtual =
-  | { esgotado: false; lote: number; valorCentavos: number; restantes: number; totalPagos: number; capacidade: number }
-  | { esgotado: true; totalPagos: number; capacidade: number };
+  | {
+      esgotado: false;
+      encerrado: false;
+      lote: number;
+      valorCentavos: number;
+      restantes: number;
+      totalPagos: number;
+      capacidade: number;
+      progresso?: number;
+      proximoLote?: { lote: number; valorCentavos: number } | null;
+      inicioLote?: number;
+      fimLote?: number;
+    }
+  | { esgotado: true; encerrado: false; totalPagos: number; capacidade: number }
+  | { encerrado: true; esgotado: false; totalPagos: number; capacidade: number };
 
 type CriarResp = {
   id: string;
@@ -54,6 +67,17 @@ export function InscricaoForm({ loteInicial }: { loteInicial: LoteAtual }) {
     }, 30_000);
     return () => clearInterval(id);
   }, []);
+
+  if (lote.encerrado) {
+    return (
+      <div className="rounded-md border-2 border-santafe-navy bg-santafe-navy p-6 text-center text-santafe-cream">
+        <p className="font-display text-2xl uppercase">Edição encerrada</p>
+        <p className="mt-2 font-serif text-sm italic">
+          O evento aconteceu em 27 de abril. Vendas encerradas.
+        </p>
+      </div>
+    );
+  }
 
   if (lote.esgotado) {
     return <ListaEsperaForm />;
