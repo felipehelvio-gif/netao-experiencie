@@ -43,9 +43,14 @@ export default async function AdminDashboardPage() {
       calcularLoteAtual(),
     ]);
 
-  const restantes = lote.esgotado ? 0 : lote.restantes;
-  const loteAtual = lote.esgotado ? '—' : `Lote ${lote.lote}`;
-  const progressoPct = lote.esgotado ? 100 : Math.round(lote.progresso * 100);
+  const ativo = !lote.esgotado && !lote.encerrado;
+  const restantes = ativo ? lote.restantes : 0;
+  const loteAtual = lote.encerrado
+    ? 'Encerrado'
+    : lote.esgotado
+    ? '—'
+    : `Lote ${lote.lote}`;
+  const progressoPct = ativo ? Math.round(lote.progresso * 100) : 100;
 
   return (
     <div className="space-y-6">
@@ -94,7 +99,7 @@ export default async function AdminDashboardPage() {
               <span className="text-xs font-bold uppercase">Lote</span>
             </div>
             <p className="mt-2 font-display text-3xl">{loteAtual}</p>
-            {!lote.esgotado && (
+            {ativo && (
               <>
                 <p className="text-xs text-santafe-navy/60">{formatBRL(lote.valorCentavos)}</p>
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-santafe-navy/10">
@@ -118,7 +123,7 @@ export default async function AdminDashboardPage() {
               <span className="text-xs font-bold uppercase">Vagas pagantes</span>
             </div>
             <p className="mt-2 font-display text-4xl">{restantes}</p>
-            {!lote.esgotado && lote.proximoLote && (
+            {ativo && lote.proximoLote && (
               <p className="text-xs text-santafe-navy/60">
                 pra virar {formatBRL(lote.proximoLote.valorCentavos)}
               </p>
